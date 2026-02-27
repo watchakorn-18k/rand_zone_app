@@ -89,6 +89,30 @@
     return `:root {\n${palette.map((c, i) => `  --color-primary-${i + 1}: ${c};`).join('\n')}\n}`;
   })();
 
+  $: fontImportHTML = (() => {
+    let url = "";
+    if (selectedFont.isLocal) {
+      url = "https://watchakorn-18k.github.io/rand_zone_app/fonts/thai-fonts.css";
+    } else if (selectedFont.cssUrl) {
+      url = selectedFont.cssUrl;
+    } else {
+      url = `https://fonts.googleapis.com/css2?family=${selectedFont.name.replace(/ /g, '+')}&display=swap`;
+    }
+    return `<link href="${url}" rel="stylesheet">`;
+  })();
+
+  $: fontImportCSS = (() => {
+    let url = "";
+    if (selectedFont.isLocal) {
+      url = "https://watchakorn-18k.github.io/rand_zone_app/fonts/thai-fonts.css";
+    } else if (selectedFont.cssUrl) {
+      url = selectedFont.cssUrl;
+    } else {
+      url = `https://fonts.googleapis.com/css2?family=${selectedFont.name.replace(/ /g, '+')}&display=swap`;
+    }
+    return `@import url('${url}');`;
+  })();
+
   // Initial generation
   import { onMount } from 'svelte';
   onMount(() => {
@@ -266,6 +290,20 @@
             <button on:click={() => copyText(cssVars)} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
           </div>
           <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto max-h-[100px]">{cssVars}</pre>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-[11px] font-bold text-text-secondary">Font HTML (&lt;link&gt;)</span>
+            <button on:click={() => copyText(fontImportHTML)} class="text-[10px] text-accent-default hover:underline">Copy HTML</button>
+          </div>
+          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto">{fontImportHTML}</pre>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-[11px] font-bold text-text-secondary">Font CSS (@import)</span>
+            <button on:click={() => copyText(fontImportCSS)} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
+          </div>
+          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto">{fontImportCSS}</pre>
         </div>
       </div>
     </div>

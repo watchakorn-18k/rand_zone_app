@@ -2,7 +2,7 @@ export const ALL_GOOGLE_FONTS = [
   {
     "name": "Anakotmai",
     "isThai": true,
-    "cssUrl": "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/css/Anakotmai.css"
+    "isLocal": true
   },
   {
     "name": "Athiti",
@@ -15,7 +15,7 @@ export const ALL_GOOGLE_FONTS = [
   {
     "name": "Boon",
     "isThai": true,
-    "cssUrl": "https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/css/Boon.css"
+    "isLocal": true
   },
   {
     "name": "Chakra Petch",
