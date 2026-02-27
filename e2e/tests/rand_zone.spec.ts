@@ -83,4 +83,18 @@ test.describe('Rand Zone App E2E', () => {
 		// Check animation state
 		await expect(genBtn).toHaveClass(/pointer-events-none/);
 	});
+
+	test('should interact with Snowflake Generator tab correctly', async ({ page }) => {
+		const sfTabBtn = page.getByTestId('mainTab5');
+		await sfTabBtn.click();
+
+		const workerInput = page.locator('#sfWorkerId');
+		await expect(workerInput).toBeVisible();
+
+		const genBtn = page.locator('#genSnowflakeBtn');
+		await genBtn.click();
+
+		// Check animation state
+		await expect(genBtn).toHaveClass(/pointer-events-none/);
+	});
 });

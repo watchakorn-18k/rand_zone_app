@@ -7,7 +7,9 @@
 
   export let digitCount = 2;
   let isGenerating = false;
-  let currentResult = Array(digitCount).fill('0').join('');
+  let digits: string[] = Array(digitCount).fill('0');
+  let lockedUntil: number[] = Array(digitCount).fill(-1); // -1 = not locked
+  let revealed = false;
   let history: Array<{ value: string; time: string; idx: number }> = [];
 
   export function getState() {
@@ -17,32 +19,23 @@
   export function setState(state: any) {
     if (state && state.d) {
       digitCount = Math.max(2, Math.min(10, state.d));
-      currentResult = Array(digitCount).fill('0').join('');
+      digits = Array(digitCount).fill('0');
+      lockedUntil = Array(digitCount).fill(-1);
     }
   }
 
   function handleDigitChange(e: Event) {
     const val = parseInt((e.target as HTMLInputElement).value) || 2;
     digitCount = Math.max(2, Math.min(10, val));
-    currentResult = Array(digitCount).fill('0').join('');
+    digits = Array(digitCount).fill('0');
+    lockedUntil = Array(digitCount).fill(-1);
+    revealed = false;
   }
 
-  function generateSecureDigits(digits: number) {
-    let result = '';
-    const buf = new Uint8Array(digits);
+  function secureDigit(isFirst: boolean): string {
+    const buf = new Uint8Array(1);
     crypto.getRandomValues(buf);
-    
-    for (let i = 0; i < digits; i++) {
-      if (i === 0) {
-        // First digit should be 1-9 to ensure it doesn't start with 0
-        const val = 1 + (buf[i] % 9);
-        result += val.toString();
-      } else {
-        // Other digits 0-9
-        result += (buf[i] % 10).toString();
-      }
-    }
-    return result;
+    return isFirst ? (1 + (buf[0] % 9)).toString() : (buf[0] % 10).toString();
   }
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -50,60 +43,77 @@
   async function startGenerate() {
     if (isGenerating) return;
     isGenerating = true;
+    revealed = false;
 
-    try {
-      const targetNumber = generateSecureDigits(digitCount);
-      const targetStr = targetNumber.toString();
-      
-      const btn = document.getElementById('genNumBtn');
-      btn?.classList.add('opacity-50', 'pointer-events-none');
-
-      // Phase 1: Fast rolling (all digits randomize rapidly)
-      const fastTicks = 20 + engine.secureRandomInt(10); // 20-30 fast ticks
-      for (let i = 0; i < fastTicks; i++) {
-        currentResult = generateSecureDigits(digitCount);
-        await sleep(30); // very fast
-      }
-
-      // Phase 2: Gradually slow down (all digits still random, but interval increases) 
-      const slowTicks = 10 + engine.secureRandomInt(5);
-      for (let i = 0; i < slowTicks; i++) {
-        currentResult = generateSecureDigits(digitCount);
-        const delay = 50 + Math.pow(i, 1.8) * 8; // exponential slowdown
-        await sleep(delay);
-      }
-
-      // Phase 3: Lock digits one by one from left to right (suspense!)
-      const lockedDigits = targetStr.split('');
-      for (let lockIdx = 0; lockIdx < digitCount; lockIdx++) {
-        // A few ticks randomizing only the remaining unlocked digits
-        const ticksPerDigit = 3 + engine.secureRandomInt(3);
-        for (let t = 0; t < ticksPerDigit; t++) {
-          const randomPart = generateSecureDigits(digitCount - lockIdx - 1);
-          currentResult = lockedDigits.slice(0, lockIdx).join('') + generateSecureDigits(1) + randomPart;
-          await sleep(80 + lockIdx * 40); // slower for each locked digit
-        }
-        // Lock this digit to the final value
-        currentResult = lockedDigits.slice(0, lockIdx + 1).join('') + generateSecureDigits(Math.max(0, digitCount - lockIdx - 1));
-        await sleep(120 + lockIdx * 60);
-      }
-
-      // Final reveal
-      currentResult = targetStr;
-      isGenerating = false;
-      btn?.classList.remove('opacity-50', 'pointer-events-none');
-      
-      history.unshift({
-        value: currentResult,
-        time: new Date().toLocaleTimeString('th-TH'),
-        idx: history.length + 1
-      });
-      history = history; // svelte reactivity trigger
-
-    } catch (error) {
-      isGenerating = false;
-      showToast('เกิดข้อผิดพลาดในการสุ่มเลข');
+    // Generate the final target
+    const target: string[] = [];
+    for (let i = 0; i < digitCount; i++) {
+      target.push(secureDigit(i === 0));
     }
+
+    // Reset lock states
+    lockedUntil = Array(digitCount).fill(-1);
+    
+    const btn = document.getElementById('genNumBtn');
+    btn?.classList.add('opacity-50', 'pointer-events-none');
+
+    // Phase 1: All digits spin fast (0.8s)
+    const phase1End = performance.now() + 800;
+    while (performance.now() < phase1End) {
+      for (let i = 0; i < digitCount; i++) {
+        digits[i] = secureDigit(i === 0);
+      }
+      digits = digits; // trigger reactivity
+      await sleep(35);
+    }
+
+    // Phase 2: Gradually slow down (0.8s)
+    let delay = 50;
+    for (let tick = 0; tick < 12; tick++) {
+      for (let i = 0; i < digitCount; i++) {
+        digits[i] = secureDigit(i === 0);
+      }
+      digits = digits;
+      delay += Math.pow(tick, 1.5) * 3;
+      await sleep(delay);
+    }
+
+    // Phase 3: Lock digits one by one from left → right with suspense
+    for (let lockIdx = 0; lockIdx < digitCount; lockIdx++) {
+      // Randomize unlocked digits a few more times, getting slower
+      const spins = 4 + engine.secureRandomInt(3);
+      for (let s = 0; s < spins; s++) {
+        for (let i = lockIdx; i < digitCount; i++) {
+          digits[i] = secureDigit(i === 0);
+        }
+        // Keep already-locked digits at their final value
+        for (let i = 0; i < lockIdx; i++) {
+          digits[i] = target[i];
+        }
+        digits = digits;
+        await sleep(100 + lockIdx * 50 + s * 20);
+      }
+
+      // LOCK this digit → set to final value
+      digits[lockIdx] = target[lockIdx];
+      lockedUntil[lockIdx] = 1;
+      lockedUntil = lockedUntil;
+      digits = digits;
+      await sleep(180 + lockIdx * 30);
+    }
+
+    // Final reveal flash
+    revealed = true;
+    digits = [...target];
+    isGenerating = false;
+    btn?.classList.remove('opacity-50', 'pointer-events-none');
+    
+    history.unshift({
+      value: target.join(''),
+      time: new Date().toLocaleTimeString('th-TH'),
+      idx: history.length + 1
+    });
+    history = history;
   }
 
   function clearHistory() {
@@ -134,14 +144,18 @@
   </section>
 
   <div class="mt-10 flex flex-col items-center">
-    <!-- Display Area -->
-    <div class="bg-bg-card border-x-4 border-accent-default border-y border-y-border-default rounded-3xl p-8 mb-8 w-full max-w-[320px] shadow-2xl relative overflow-hidden flex justify-center">
-      <!-- Glow effect behind numbers -->
-      <div class="absolute inset-0 bg-accent-default/5 blur-2xl"></div>
-      
-      <div class="text-5xl sm:text-6xl font-black text-white tracking-[0.1em] font-mono leading-none drop-shadow-md z-10 transition-all {isGenerating ? 'blur-[1px] opacity-80' : 'blur-none opacity-100'}">
-        {currentResult}
-      </div>
+    <!-- Digit Cells Display -->
+    <div class="flex gap-1.5 sm:gap-2.5 mb-8 flex-wrap justify-center">
+      {#each digits as d, i}
+        <div 
+          class="digit-cell w-12 h-16 sm:w-14 sm:h-[72px] rounded-xl flex items-center justify-center text-3xl sm:text-4xl font-black font-mono select-none transition-all duration-200
+            {lockedUntil[i] === 1 ? 'bg-accent-default/15 border-2 border-accent-default text-white scale-105' : 'bg-bg-panel border-2 border-border-default text-text-secondary'}
+            {revealed && lockedUntil[i] === 1 ? 'digit-pop' : ''}
+            {isGenerating && lockedUntil[i] !== 1 ? 'digit-spin' : ''}"
+        >
+          {d}
+        </div>
+      {/each}
     </div>
 
     <button on:click={startGenerate} id="genNumBtn" class="inline-flex items-center gap-2.5 px-12 py-4 bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-semibold text-base rounded-xl transition-colors shadow-lg shadow-accent-default/20">
@@ -150,16 +164,16 @@
     <div class="mt-4 text-[11px] text-text-tertiary font-mono tracking-wide">Crypto.getRandomValues() (CSPRNG) Standard</div>
 
     {#if history.length > 0}
-    <div id="numberHistory" class="mt-10 w-full max-w-sm">
+    <div id="numberHistory" class="mt-10 w-full max-w-md">
       <div class="flex items-center justify-between mb-3 border-b border-border-subtle pb-2">
         <h3 class="text-sm font-semibold text-text-secondary flex items-center gap-1.5"><i class="ri-history-line"></i> ประวัติการสุ่มหมายเลข</h3>
         <button on:click={clearHistory} class="text-xs text-text-tertiary hover:text-text-secondary transition-colors"><i class="ri-delete-bin-line"></i> ล้าง</button>
       </div>
       <div class="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
         {#each history as h, i (h.idx)}
-        <div class="flex items-center gap-3 px-4 py-2 bg-bg-panel/50 border border-border-subtle rounded-lg text-[13px] anim-result" style="animation-delay:{i * 0.03}s">
+        <div class="flex items-center gap-3 px-4 py-2.5 bg-bg-panel/50 border border-border-subtle rounded-lg text-[13px] anim-result" style="animation-delay:{i * 0.03}s">
           <span class="font-mono text-[11px] text-text-tertiary w-6 text-right">#{history.length - i}</span>
-          <span class="text-text-primary text-base font-bold font-mono tracking-wide flex-1 text-center">{h.value}</span>
+          <span class="text-text-primary text-lg font-bold font-mono tracking-[0.15em] flex-1 text-center">{h.value}</span>
           <span class="font-mono text-[11px] text-text-tertiary text-right">{h.time}</span>
         </div>
         {/each}
@@ -175,13 +189,26 @@
   }
 
   @keyframes resultIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .digit-spin {
+    animation: digitSpin 0.1s ease-in-out infinite alternate;
+  }
+
+  .digit-pop {
+    animation: digitPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  @keyframes digitSpin {
+    from { transform: translateY(-2px); }
+    to { transform: translateY(2px); }
+  }
+
+  @keyframes digitPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.18); }
+    100% { transform: scale(1.05); }
   }
 </style>

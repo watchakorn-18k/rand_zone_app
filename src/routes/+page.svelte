@@ -17,6 +17,9 @@
 
   function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake') {
     currentTab = tab;
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', tab);
+    window.history.replaceState({}, '', url);
   }
 
   function shareLink() {
@@ -69,10 +72,16 @@
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
-        window.history.replaceState({}, document.title, window.location.pathname);
       } catch (e) {
         console.error(e);
         showToast('ลิงก์แชร์ไม่ถูกต้องหรือข้อมูลเสียหาย');
+      }
+    } else {
+      // Restore tab from ?tab= param on refresh
+      const savedTab = urlParams.get('tab');
+      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake'] as const;
+      if (savedTab && validTabs.includes(savedTab as any)) {
+        currentTab = savedTab as typeof currentTab;
       }
     }
   });
