@@ -5,8 +5,8 @@
 
   const engine = new FairnessEngine();
 
-  // Mode: 'digit' = random digits, 'set' = pick from custom set
-  let mode: 'digit' | 'set' = 'digit';
+  // Mode: 'digit' = random digits, 'range' = min-max range, 'set' = pick from custom set
+  let mode: 'digit' | 'range' | 'set' = 'digit';
 
   // Digit mode
   export let digitCount = 2;
@@ -14,6 +14,13 @@
   let digits: string[] = Array(digitCount).fill('0');
   let lockedUntil: number[] = Array(digitCount).fill(-1);
   let revealed = false;
+
+  // Range mode
+  let rangeMin = 1;
+  let rangeMax = 100;
+  let rangeResult = '';
+  let rangeIsSpinning = false;
+  let rangeDisplayValue = '—';
 
   // Set mode
   let setInput = '';
@@ -25,7 +32,7 @@
   let history: Array<{ value: string; time: string; idx: number; type: string }> = [];
 
   export function getState() {
-    return { d: digitCount, mode, setInput };
+    return { d: digitCount, mode, setInput, rMin: rangeMin, rMax: rangeMax };
   }
 
   export function setState(state: any) {
@@ -37,6 +44,8 @@
       }
       if (state.mode) mode = state.mode;
       if (state.setInput) setInput = state.setInput;
+      if (state.rMin !== undefined) rangeMin = state.rMin;
+      if (state.rMax !== undefined) rangeMax = state.rMax;
     }
   }
 
@@ -52,6 +61,13 @@
     const buf = new Uint8Array(1);
     crypto.getRandomValues(buf);
     return isFirst ? (1 + (buf[0] % 9)).toString() : (buf[0] % 10).toString();
+  }
+
+  function secureRandomInRange(min: number, max: number): number {
+    const range = max - min + 1;
+    const buf = new Uint32Array(1);
+    crypto.getRandomValues(buf);
+    return min + (buf[0] % range);
   }
 
   function getSetItems(): string[] {
@@ -124,6 +140,56 @@
     history = history;
   }
 
+  // ─── Range Mode Animation ───
+  async function startGenerateRange() {
+    const min = Math.min(rangeMin, rangeMax);
+    const max = Math.max(rangeMin, rangeMax);
+    if (min === max) {
+      showToast('ค่าเริ่มต้นและค่าสิ้นสุดต้องไม่เท่ากัน');
+      return;
+    }
+    if (rangeIsSpinning) return;
+    rangeIsSpinning = true;
+    rangeResult = '';
+
+    const winner = secureRandomInRange(min, max);
+
+    const btn = document.getElementById('genRangeBtn');
+    btn?.classList.add('opacity-50', 'pointer-events-none');
+
+    // Phase 1: Fast random numbers
+    for (let i = 0; i < 25; i++) {
+      rangeDisplayValue = String(secureRandomInRange(min, max));
+      await sleep(35);
+    }
+
+    // Phase 2: Slow down
+    for (let i = 0; i < 15; i++) {
+      rangeDisplayValue = String(secureRandomInRange(min, max));
+      await sleep(60 + Math.pow(i, 1.6) * 8);
+    }
+
+    // Phase 3: Final ticks very slow
+    for (let i = 0; i < 5; i++) {
+      rangeDisplayValue = String(secureRandomInRange(min, max));
+      await sleep(250 + i * 100);
+    }
+
+    // Reveal
+    rangeDisplayValue = String(winner);
+    rangeResult = String(winner);
+    rangeIsSpinning = false;
+    btn?.classList.remove('opacity-50', 'pointer-events-none');
+
+    history.unshift({
+      value: String(winner),
+      time: new Date().toLocaleTimeString('th-TH'),
+      idx: history.length + 1,
+      type: 'range'
+    });
+    history = history;
+  }
+
   // ─── Set Mode Animation ───
   async function startGenerateSet() {
     const items = getSetItems();
@@ -183,10 +249,13 @@
 <div class="space-y-8">
   <!-- Mode Switcher -->
   <div class="flex bg-bg-panel rounded-lg p-1 gap-1">
-    <button class="flex-1 py-2.5 px-4 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {mode === 'digit' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}" on:click={() => mode = 'digit'}>
-      <i class="ri-hashtag"></i> สุ่มตัวเลข
+    <button class="flex-1 py-2.5 px-3 rounded-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {mode === 'digit' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}" on:click={() => mode = 'digit'}>
+      <i class="ri-hashtag"></i> สุ่มหลัก
     </button>
-    <button class="flex-1 py-2.5 px-4 rounded-md text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {mode === 'set' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}" on:click={() => mode = 'set'}>
+    <button class="flex-1 py-2.5 px-3 rounded-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {mode === 'range' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}" on:click={() => mode = 'range'}>
+      <i class="ri-arrow-left-right-line"></i> สุ่มช่วง
+    </button>
+    <button class="flex-1 py-2.5 px-3 rounded-md text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {mode === 'set' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}" on:click={() => mode = 'set'}>
       <i class="ri-list-check-3"></i> สุ่มจากชุด
     </button>
   </div>
@@ -232,6 +301,47 @@
       <i class="ri-play-list-add-line text-lg"></i> เริ่มการสุ่มเลข!
     </button>
     <div class="mt-4 text-[11px] text-text-tertiary font-mono tracking-wide">Crypto.getRandomValues() (CSPRNG) Standard</div>
+  </div>
+
+  <!-- ═══ RANGE MODE ═══ -->
+  {:else if mode === 'range'}
+  <section class="bg-bg-card border border-border-subtle rounded-2xl p-6 transition-colors hover:border-border-default">
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-8 h-8 rounded-lg bg-accent-default/10 text-accent-default flex items-center justify-center text-sm font-mono font-bold"><i class="ri-arrow-left-right-line"></i></div>
+      <h2 class="text-lg font-bold text-text-primary">กำหนดช่วงตัวเลข</h2>
+    </div>
+    <p class="text-text-tertiary text-[13px] mb-5 ml-11 leading-relaxed">กำหนดค่าเริ่มต้นและค่าสิ้นสุดสำหรับสุ่มตัวเลขในช่วงที่กำหนด</p>
+    
+    <div class="ml-11 grid grid-cols-2 gap-4 max-w-sm">
+      <div>
+        <label for="rangeMin" class="block text-xs font-semibold text-text-tertiary mb-2">เริ่มต้น (Min)</label>
+        <input type="number" id="rangeMin" bind:value={rangeMin} class="w-full bg-bg-panel border border-border-default rounded-xl text-text-primary text-sm p-3 outline-none focus:border-accent-default focus:ring-2 focus:ring-pri-500/20 font-mono text-center" />
+      </div>
+      <div>
+        <label for="rangeMax" class="block text-xs font-semibold text-text-tertiary mb-2">สิ้นสุด (Max)</label>
+        <input type="number" id="rangeMax" bind:value={rangeMax} class="w-full bg-bg-panel border border-border-default rounded-xl text-text-primary text-sm p-3 outline-none focus:border-accent-default focus:ring-2 focus:ring-pri-500/20 font-mono text-center" />
+      </div>
+    </div>
+  </section>
+
+  <div class="mt-10 flex flex-col items-center">
+    <!-- Result Display -->
+    <div class="bg-bg-card border-2 {rangeResult ? 'border-accent-default' : 'border-border-default'} rounded-2xl p-8 mb-8 w-full max-w-md shadow-xl relative overflow-hidden flex flex-col items-center justify-center min-h-[120px] transition-colors">
+      {#if rangeResult}
+        <div class="absolute inset-0 bg-accent-default/5"></div>
+      {/if}
+      <div class="text-5xl sm:text-6xl font-black text-white font-mono z-10 text-center transition-all {rangeIsSpinning ? 'blur-[0.5px] opacity-70' : ''} {rangeResult ? 'set-pop' : ''}">
+        {rangeDisplayValue}
+      </div>
+      {#if rangeResult}
+        <div class="text-[11px] font-mono text-accent-default mt-4 z-10 flex items-center gap-1"><i class="ri-check-double-line"></i> ผลสุ่มในช่วงที่กำหนด</div>
+      {/if}
+    </div>
+
+    <button on:click={startGenerateRange} id="genRangeBtn" class="inline-flex items-center gap-2.5 px-12 py-4 bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-semibold text-base rounded-xl transition-colors shadow-lg shadow-accent-default/20">
+      <i class="ri-refresh-line text-lg"></i> เริ่มสุ่มในช่วงนี้
+    </button>
+    <div class="mt-4 text-[11px] text-text-tertiary font-mono tracking-wide">Secure Range Randomizer</div>
   </div>
 
   <!-- ═══ SET MODE ═══ -->
