@@ -64,7 +64,22 @@
 </script>
 
 <svelte:head>
-  <title>Rand Zone — ระบบสุ่มกลุ่มและ Spin Wheel</title>
+  <title>Rand Zone — ระบบสุ่มกลุ่ม สุ่มรายชื่อ และหมุนวงล้อ Spin Wheel ฟรี ไร้โฆษณา</title>
+  <meta name="description" content="Rand Zone แอปเครื่องมือสุ่มกลุ่ม จัดกลุ่ม จับฉลาก สุ่มรายชื่อ และหมุนวงล้อ (Spin Wheel) ออนไลน์ฟรี ไม่มีโฆษณากวนใจ ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates 7 รอบ" />
+  <meta name="keywords" content="สุ่มกลุ่ม, สุ่มชื่อ, จับฉลาก, หมุนวงล้อ, แบ่งกลุ่ม, spin wheel, random name, เครื่องมือสุ่มฟรี, ไม่มีโฆษณา" />
+  <meta name="robots" content="index, follow" />
+  <meta name="author" content="Rand Zone Tool" />
+  <meta name="theme-color" content="#3b82f6" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Rand Zone — สุ่มจัดกลุ่มและวงล้อออนไลน์ ฟรี ไม่มีโฆษณา" />
+  <meta property="og:description" content="เครื่องมือช่วยตัดสินใจ จัดกลุ่มสุ่มเพื่อน และจับฉลากด้วย Spin Wheel ใช้งานง่าย เร็ว ปราศจากโฆษณาแทรกกวนใจ!" />
+  <meta property="og:site_name" content="Rand Zone" />
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Rand Zone — ระบบสุ่มกลุ่มและหมุนวงล้อออนไลน์ฟรี 100%" />
+  <meta name="twitter:description" content="จัดการทีมและตัดสินใจได้ง่ายๆ ผ่านเว็บ ไม่มีโฆษณา รวดเร็ว โปร่งใสด้วย Cryptographic Fairness" />
+
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
