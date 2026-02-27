@@ -11,19 +11,15 @@
 
   import { ALL_GOOGLE_FONTS } from '$lib/data/google-fonts';
 
-  let selectedFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Inter') || ALL_GOOGLE_FONTS[0];
+  let selectedFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Prompt') || ALL_GOOGLE_FONTS[0];
   let searchTerm = '';
-  let showThaiOnly = false;
 
   $: filteredFonts = ALL_GOOGLE_FONTS.filter(f => {
-    const matchesSearch = f.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesThai = showThaiOnly ? f.isThai : true;
-    return matchesSearch && matchesThai;
+    return f.name.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
   function randomFont() {
-    const list = showThaiOnly ? ALL_GOOGLE_FONTS.filter(f => f.isThai) : ALL_GOOGLE_FONTS;
-    selectedFont = list[Math.floor(Math.random() * list.length)];
+    selectedFont = ALL_GOOGLE_FONTS[Math.floor(Math.random() * ALL_GOOGLE_FONTS.length)];
   }
 
   // Helper: HSL to HEX
@@ -115,10 +111,18 @@
     }
     generatePalette();
   }
+  
+  import '$lib/styles/local-fonts.css';
 </script>
 
 <svelte:head>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={selectedFont.name.replace(/ /g, '+')}:wght@400;700&display=swap" />
+  {#if 'isLocal' in selectedFont && selectedFont.isLocal}
+    <!-- Local fonts are loaded via import in the script -->
+  {:else if 'cssUrl' in selectedFont && selectedFont.cssUrl}
+    <link rel="stylesheet" href={selectedFont.cssUrl} />
+  {:else}
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={selectedFont.name.replace(/ /g, '+')}:wght@400;700&display=swap" />
+  {/if}
 </svelte:head>
 
 <div class="space-y-8">
@@ -194,23 +198,12 @@
             
             <select 
               bind:value={selectedFont} 
-              class="bg-transparent text-[11px] font-bold text-text-secondary outline-none max-w-[120px] cursor-pointer"
+              class="bg-transparent text-[11px] font-bold text-text-secondary outline-none max-w-[140px] cursor-pointer"
             >
-              {#each filteredFonts.slice(0, 500) as f}
-                <option value={f}>{f.name}{f.isThai ? ' (Thai)' : ''}</option>
+              {#each filteredFonts as f}
+                <option value={f}>{f.name}</option>
               {/each}
-              {#if filteredFonts.length > 500}
-                <option disabled>... และอีก {filteredFonts.length - 500} รายการ</option>
-              {/if}
             </select>
-
-            <button 
-              on:click={() => showThaiOnly = !showThaiOnly}
-              class="text-[10px] font-bold px-1.5 py-0.5 rounded transition-all {showThaiOnly ? 'bg-accent-default text-white' : 'text-text-tertiary hover:bg-bg-card'}"
-              title="แสดงเฉพาะฟอนต์ไทย"
-            >
-              TH
-            </button>
             <button 
               on:click={randomFont}
               class="w-6 h-6 flex items-center justify-center rounded hover:bg-bg-card transition-colors text-text-tertiary hover:text-accent-default"

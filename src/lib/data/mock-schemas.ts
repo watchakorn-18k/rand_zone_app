@@ -918,5 +918,753 @@ export const MOCK_SCHEMAS: SchemaDefinition[] = [
 			would_recommend: secureRandom(100) > 40,
 			submitted_at: randomDate()
 		})
+	},
+	{
+		key: 'news',
+		label: 'News Articles',
+		icon: 'ri-newspaper-line',
+		desc: 'ข่าวสาร (หัวข้อข่าว, สำนักข่าว, เนื้อหา)',
+		generator: (id) => ({
+			id,
+			headline: pick([
+				'Breaking News: Market Hits High',
+				'New Tech Innovations Revealed',
+				'Weather Alert: Storm Approaching'
+			]),
+			publisher: pick(['BBC', 'CNN', 'Reuters', 'Thai Rath', 'The Standard']),
+			author: pick(FIRST_NAMES),
+			category: pick(['Business', 'Technology', 'Politics', 'Sports']),
+			published_at: randomDate(),
+			is_breaking: secureRandom(100) > 90
+		})
+	},
+	{
+		key: 'pc_components',
+		label: 'PC Components',
+		icon: 'ri-cpu-fill',
+		desc: 'ชิ้นส่วนคอมพิวเตอร์ (CPU, GPU, RAM, ราคา)',
+		generator: (id) => ({
+			id,
+			part_type: pick(['CPU', 'GPU', 'RAM', 'SSD', 'Motherboard']),
+			brand: pick(['Intel', 'AMD', 'NVIDIA', 'Asus', 'Gigabyte', 'Kingston']),
+			model: pick(['Core i9', 'Ryzen 9', 'RTX 4090', 'Vengeance LPX']),
+			price: randomInt(2000, 60000),
+			warranty_years: randomInt(1, 5),
+			stock_status: pick(['In Stock', 'Out of Stock', 'Pre-order'])
+		})
+	},
+	{
+		key: 'instruments',
+		label: 'Musical Instruments',
+		icon: 'ri-music-2-line',
+		desc: 'เครื่องดนตรี (ประเภท, ยี่ห้อ, ราคา)',
+		generator: (id) => ({
+			id,
+			name: pick(['Electric Guitar', 'Acoustic Piano', 'Violin', 'Drum Set', 'Saxophone']),
+			brand: pick(['Fender', 'Yamaha', 'Gibson', 'Steinway', 'Roland']),
+			type: pick(['String', 'Keys', 'Percussion', 'Woodwind']),
+			price: randomInt(5000, 200000),
+			condition: pick(['New', 'Used', 'Vintage'])
+		})
+	},
+	{
+		key: 'artworks',
+		label: 'Artworks',
+		icon: 'ri-palette-line',
+		desc: 'ผลงานศิลปะ (ชื่อภาพ, ศิลปิน, ปีที่สร้าง)',
+		generator: (id) => ({
+			id,
+			title: pick(['Starlight Night', 'The Scream', 'Mona Lisa', 'The Thinker']),
+			artist: pick(['Vincent van Gogh', 'Leonardo da Vinci', 'Pablo Picasso', 'Claude Monet']),
+			medium: pick(['Oil on Canvas', 'Sculpture', 'Watercolor', 'Digital Art']),
+			creation_year: randomInt(1500, 2024),
+			estimated_value: randomInt(100000, 10000000)
+		})
+	},
+	{
+		key: 'workouts',
+		label: 'Workouts',
+		icon: 'ri-run-line',
+		desc: 'รายการออกกำลังกาย (ท่าฝึก, เซต, แคลอรี่)',
+		generator: (id) => ({
+			id,
+			exercise: pick(['Bench Press', 'Squat', 'Deadlift', 'Pull-up', 'Shoulder Press']),
+			muscle_group: pick(['Chest', 'Legs', 'Back', 'Shoulders', 'Arms']),
+			sets: randomInt(3, 5),
+			reps: randomInt(8, 15),
+			calories_burned: randomInt(50, 200),
+			duration_minutes: randomInt(10, 45)
+		})
+	},
+	{
+		key: 'diet_nutrition',
+		label: 'Nutrition',
+		icon: 'ri-apple-line',
+		desc: 'ข้อมูลโภชนาการ (คาร์บ, โปรตีน, ไขมัน)',
+		generator: (id) => ({
+			id,
+			food_item: pick(['Chicken Breast', 'Brown Rice', 'Avocado', 'Egg', 'Greek Yogurt']),
+			calories: randomInt(50, 500),
+			protein_g: randomInt(0, 40),
+			carbs_g: randomInt(0, 40),
+			fat_g: randomInt(0, 30),
+			serving_size: '100g'
+		})
+	},
+	{
+		key: 'mobile_apps',
+		label: 'Mobile Apps',
+		icon: 'ri-smartphone-line',
+		desc: 'แอปพลิเคชันมือถือ (ชื่อ, ผู้พัฒนา, ยอดดาวน์โหลด)',
+		generator: (id) => ({
+			id,
+			app_name: pick(['QuickShare', 'SnapEdit', 'FitTracker', 'MindGuard', 'TaskMaster']),
+			developer: pick(['AppZone', 'SoftCreative', 'DevStudio', 'GlobalConnect']),
+			category: pick(['Social', 'Utility', 'Health', 'Games', 'Finance']),
+			downloads: randomInt(1000, 100000000),
+			rating: (2.0 + Math.random() * 3.0).toFixed(1),
+			is_free: secureRandom(100) > 20
+		})
+	},
+	{
+		key: 'ai_models',
+		label: 'AI Models',
+		icon: 'ri-robot-2-line',
+		desc: 'โมเดล AI (ชื่อโมเดล, พารามิเตอร์, ผู้สร้าง)',
+		generator: (id) => ({
+			id,
+			model_name: pick(['GPT-4', 'Claude 3', 'Llama 2', 'PaLM 2', 'Mistral']),
+			developer: pick(['OpenAI', 'Anthropic', 'Meta', 'Google']),
+			parameters: `${randomInt(1, 1000)}B`,
+			context_window: `${randomInt(4, 128)}k`,
+			release_date: randomDate(),
+			architecture: pick(['Transformer', 'MoE', 'Diffusion'])
+		})
+	},
+	{
+		key: 'cloud_services',
+		label: 'Cloud Services',
+		icon: 'ri-cloud-windy-line',
+		desc: 'บริการคลาวด์ (ชื่อบริการ, ราคา, ภูมิภาค)',
+		generator: (id) => ({
+			id,
+			service_name: pick(['EC2', 'S3', 'Lambda', 'RDS', 'CloudFront']),
+			provider: pick(['AWS', 'Google Cloud', 'Azure', 'DigitalOcean']),
+			monthly_cost: randomInt(5, 5000),
+			region: pick(['us-east-1', 'ap-southeast-1', 'eu-west-1']),
+			sla_uptime: '99.99%',
+			status: pick(['Running', 'Stopped', 'Scaling'])
+		})
+	},
+	{
+		key: 'domains',
+		label: 'Domain Names',
+		icon: 'ri-global-line',
+		desc: 'ชื่อโดเมน (URL, สถานะการจดทะเบียน)',
+		generator: (id) => ({
+			id,
+			domain: `${pick(['awesome', 'tech', 'my', 'global'])}-${randomInt(100, 999)}.${pick(['com', 'io', 'net', 'org', 'th'])}`,
+			registrant: pick(FIRST_NAMES),
+			expires_at: randomDate(2025, 2030),
+			status: pick(['Registered', 'Available', 'Premium', 'Expired']),
+			auto_renew: secureRandom(100) > 50
+		})
+	},
+	{
+		key: 'ssh_keys',
+		label: 'SSH Keys',
+		icon: 'ri-key-2-line',
+		desc: 'ข้อมูล SSH Key (ชื่อ, ลายนิ้วมือ, วันที่สร้าง)',
+		generator: (id) => ({
+			id,
+			key_name: `${pick(['MacBook', 'WorkStation', 'Production', 'CI-CD'])}-Key`,
+			fingerprint: `SHA256:${Math.random().toString(36).substring(2, 22)}`,
+			type: pick(['ed25519', 'rsa-4096', 'ecdsa-sha2-nistp256']),
+			created_at: randomDate(),
+			last_used: randomDate()
+		})
+	},
+	{
+		key: 'docker',
+		label: 'Docker Images',
+		icon: 'ri-instance-line',
+		desc: 'ด็อกเกอร์อิมเมจ (ชื่อ, แท็ก, ขนาดอิมเมจ)',
+		generator: (id) => ({
+			id,
+			image_name: pick(['nginx', 'postgres', 'redis', 'node', 'alpine', 'python']),
+			tag: pick(['latest', 'alpine', '14-slim', 'bullseye', 'v2.4.1']),
+			size_mb: randomInt(5, 1200),
+			pushed_at: randomDate(),
+			maintainer: `${pick(FIRST_NAMES).toLowerCase()}-dev`,
+			is_official: secureRandom(100) > 60
+		})
+	},
+	{
+		key: 'kubernetes',
+		label: 'K8s Pods',
+		icon: 'ri-stack-line',
+		desc: 'เคเบอร์เนทีสพ็อด (ชื่อ, สถานะ, จำนวนรีสตาร์ท)',
+		generator: (id) => ({
+			id,
+			pod_name: `${pick(['web', 'api', 'db', 'worker'])}-${randomInt(1000, 9999)}`,
+			namespace: pick(['default', 'kube-system', 'production', 'staging']),
+			status: pick(['Running', 'Pending', 'Error', 'CrashLoopBackOff']),
+			restart_count: randomInt(0, 50),
+			uptime_seconds: randomInt(3600, 864000),
+			node: `node-0${randomInt(1, 4)}`
+		})
+	},
+	{
+		key: 'vulnerabilities',
+		label: 'Security Vulnerabilities',
+		icon: 'ri-bug-2-line',
+		desc: 'ช่องโหว่ความมั่นคง (CVE, ระดับความรุนแรง)',
+		generator: (id) => ({
+			id,
+			cve_id: `CVE-202${randomInt(0, 4)}-${randomInt(1000, 99999)}`,
+			severity: pick(['Critical', 'High', 'Medium', 'Low']),
+			cvss_score: (1.0 + Math.random() * 9.0).toFixed(1),
+			package: pick(['openssl', 'bash', 'log4j', 'kubernetes', 'linux-kernel']),
+			status: pick(['Fixed', 'Patched', 'Active', 'Under Investigation'])
+		})
+	},
+	{
+		key: 'changelog',
+		label: 'Software Changelogs',
+		icon: 'ri-history-line',
+		desc: 'บันทึกการเปลี่ยนแปลง (เวอร์ชัน, รายการที่เพิ่ม/แก้ไข)',
+		generator: (id) => ({
+			id,
+			version: `v${randomInt(1, 5)}.${randomInt(0, 9)}.${randomInt(0, 20)}`,
+			type: pick(['Major', 'Minor', 'Patch', 'Hotfix']),
+			changes: [
+				pick(['Added dark mode', 'Improved performance', 'Fixed login bug', 'Updated dependencies'])
+			],
+			release_date: randomDate(),
+			is_stable: secureRandom(100) > 20
+		})
+	},
+	{
+		key: 'travel_destinations',
+		label: 'Travel Destinations',
+		icon: 'ri-compass-3-line',
+		desc: 'จุดหมายปลายทาง (เมือง, ประเทศ, ความนิยม)',
+		generator: (id) => ({
+			id,
+			destination: pick([
+				'Paris, France',
+				'Kyoto, Japan',
+				'Bangkok, Thailand',
+				'Rome, Italy',
+				'New York, USA'
+			]),
+			best_time_to_visit: pick(['Spring', 'Summer', 'Autumn', 'Winter']),
+			popular_landmark: pick([
+				'Eiffel Tower',
+				'Fushimi Inari',
+				'Wat Arun',
+				'Colosseum',
+				'Statue of Liberty'
+			]),
+			average_budget_per_day: randomInt(50, 500),
+			rating: (4.0 + Math.random()).toFixed(1)
+		})
+	},
+	{
+		key: 'national_parks',
+		label: 'National Parks',
+		icon: 'ri-leaf-line',
+		desc: 'อุทยานแห่งชาติ (ชื่อ, พื้นที่, สัตว์ป่า)',
+		generator: (id) => ({
+			id,
+			park_name: pick(['Khao Yai', 'Inthanon', 'Yellowstone', 'Grand Canyon', 'Zion']),
+			country: pick(['Thailand', 'USA', 'Japan', 'Canada']),
+			acres: randomInt(50000, 2000000),
+			fauna: [pick(['Tiger', 'Elephant', 'Grizzly', 'Eagle', 'Wolf'])],
+			established_year: randomInt(1850, 2020)
+		})
+	},
+	{
+		key: 'city_stats',
+		label: 'City Statistics',
+		icon: 'ri-community-line',
+		desc: 'สถิติเมือง (ประชากร, พื้นที่, รหัสไปรษณีย์)',
+		generator: (id) => ({
+			id,
+			city: pick(CITIES),
+			population: randomInt(100000, 10000000),
+			timezone: 'GMT+7',
+			zip_code: `${randomInt(10000, 99999)}`,
+			is_capital: secureRandom(100) > 90,
+			area_sqkm: randomInt(100, 2000)
+		})
+	},
+	{
+		key: 'economics',
+		label: 'Economic Indicators',
+		icon: 'ri-funds-line',
+		desc: 'ตัวชี้วัดเศรษฐกิจ (GDP, เงินเฟ้อ, อัตราว่างงาน)',
+		generator: (id) => ({
+			id,
+			country: pick(['Thailand', 'USA', 'Japan', 'Germany', 'China']),
+			gdp_growth_pct: (Math.random() * 5).toFixed(1),
+			inflation_pct: (Math.random() * 8).toFixed(1),
+			unemployment_rate: (Math.random() * 10).toFixed(1),
+			currency: pick(['THB', 'USD', 'JPY', 'EUR', 'CNY']),
+			fiscal_year: 2024
+		})
+	},
+	{
+		key: 'stock_market',
+		label: 'Stocks',
+		icon: 'ri-stock-line',
+		desc: 'ข้อมูลหุ้น (ชื่อหุ้น, ราคาล่าสุด, การเปลี่ยนแปลง)',
+		generator: (id) => ({
+			id,
+			symbol: pick(['AAPL', 'TSLA', 'MSFT', 'AMZN', 'GOOGL', 'NVDA', 'META']),
+			company: pick(['Apple Inc.', 'Tesla Inc.', 'Microsoft', 'Amazon.com', 'Google']),
+			price: (randomInt(10, 500) + Math.random()).toFixed(2),
+			change_pct: (Math.random() * 10 - 5).toFixed(2),
+			volume: randomInt(100000, 10000000),
+			market_cap: `${randomInt(10, 3000)}B`
+		})
+	},
+	{
+		key: 'legal_docs',
+		label: 'Legal Documents',
+		icon: 'ri-file-shield-2-line',
+		desc: 'เอกสารทางกฎหมาย (ประเภทสัญญา, วันที่รันอีเมล)',
+		generator: (id) => ({
+			id,
+			doc_type: pick(['NDA', 'Employment Agreement', 'Lease Contract', 'Service Level Agreement']),
+			status: pick(['Signed', 'Pending', 'Draft', 'Expired']),
+			parties: [pick(['Corp A', 'Client B', 'Individual C', 'Entity D'])],
+			effective_date: randomDate(),
+			termination_date: randomDate(2025, 2030)
+		})
+	},
+	{
+		key: 'rentals',
+		label: 'Rentals',
+		icon: 'ri-key-line',
+		desc: 'ข้อมูลเช่า (หอพัก/คอนโด, ราคาเช่า)',
+		generator: (id) => ({
+			id,
+			property_type: pick(['Studio Condo', '1BR Apartment', 'Tounhouse', 'Commercial Space']),
+			monthly_rent: randomInt(5000, 50000),
+			deposit: randomInt(10000, 100000),
+			is_furnished: secureRandom(100) > 40,
+			utilities_included: secureRandom(100) > 80,
+			available_from: randomDate()
+		})
+	},
+	{
+		key: 'insurance',
+		label: 'Insurance',
+		icon: 'ri-shield-check-line',
+		desc: 'ข้อมูลประกัน (สุขภาพ, รถ, ชีวิต)',
+		generator: (id) => ({
+			id,
+			policy_number: `POL-${randomInt(100000, 999999)}`,
+			insurance_type: pick(['Health', 'Auto', 'Life', 'Travel', 'Property']),
+			coverage_amount: randomInt(100000, 5000000),
+			premium_monthly: randomInt(500, 5000),
+			holder: pick(FIRST_NAMES),
+			status: pick(['Active', 'Grace Period', 'Lapsed'])
+		})
+	},
+	{
+		key: 'mortgages',
+		label: 'Mortgages',
+		icon: 'ri-percent-line',
+		desc: 'ข้อมูลสินเชื่อบ้าน (ยอดกู้, อัตราดอกเบี้ย)',
+		generator: (id) => ({
+			id,
+			loan_amount: randomInt(1000000, 10000000),
+			interest_rate: (2.5 + Math.random() * 5).toFixed(2),
+			term_years: pick([15, 20, 25, 30]),
+			bank: pick(['KBank', 'SCB', 'BBL', 'GH Bank']),
+			monthly_payment: randomInt(5000, 50000),
+			remaining_balance: randomInt(500000, 9000000)
+		})
+	},
+	{
+		key: 'credit_scores',
+		label: 'Credit Scores',
+		icon: 'ri-gauge-line',
+		desc: 'คะแนนเครดิต (คะแนน, เกรด, ประวัติ)',
+		generator: (id) => ({
+			id,
+			score: randomInt(300, 850),
+			grade: pick(['Very Poor', 'Fair', 'Good', 'Very Good', 'Exceptional']),
+			last_checked: randomDate(),
+			on_track: secureRandom(100) > 20,
+			debts_outstanding: randomInt(0, 500000)
+		})
+	},
+	{
+		key: 'uni_depts',
+		label: 'University Depts',
+		icon: 'ri-government-line',
+		desc: 'คณะ/ภาควิชา (ชื่อคณะ, จำนวนบุคลากร)',
+		generator: (id) => ({
+			id,
+			department: pick(['Faculty of Engineering', 'Faculty of Commerce', 'Faculty of Arts']),
+			dean: pick(FIRST_NAMES),
+			student_count: randomInt(500, 5000),
+			faculty_count: randomInt(20, 200),
+			research_budget: randomInt(100000, 5000000),
+			location: `Building ${randomInt(1, 20)}`
+		})
+	},
+	{
+		key: 'research_papers',
+		label: 'Research Papers',
+		icon: 'ri-draft-line',
+		desc: 'งานวิจัย (หัวข้อ, ผู้เขียน, จำนวนครั้งที่อ้างถึง)',
+		generator: (id) => ({
+			id,
+			title: pick(['Advancements in ML', 'Impact of Social Media', 'Renewable Energy Efficiency']),
+			authors: [`${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`],
+			citations: randomInt(0, 5000),
+			journal: pick(['Nature', 'Science', 'IEEE', 'The Lancet']),
+			published_date: randomDate(),
+			is_peer_reviewed: secureRandom(100) > 10
+		})
+	},
+	{
+		key: 'patents',
+		label: 'Patents',
+		icon: 'ri-medal-line',
+		desc: 'สิทธิบัตร (ชื่อ, เจ้าของ, วันที่จด)',
+		generator: (id) => ({
+			id,
+			patent_number: `US${randomInt(1000000, 9999999)}B2`,
+			title: pick(['Folding Screen Device', 'Battery Management System', 'AI for Imaging']),
+			assignee: pick(['Google', 'Samsung', 'IBM', 'Apple', 'Huawei']),
+			filed_at: randomDate(2010, 2024),
+			granted_at: randomDate(2020, 2024)
+		})
+	},
+	{
+		key: 'language_prof',
+		label: 'Language Proficiency',
+		icon: 'ri-chat-voice-line',
+		desc: 'ระดับความสามารถทางภาษา (เลเวล, ใบรับรอง)',
+		generator: (id) => ({
+			id,
+			language: pick(['English', 'Thai', 'Japanese', 'Chinese', 'French', 'German']),
+			level: pick(['Beginner', 'Intermediate', 'Advanced', 'Native']),
+			certification: pick(['TOEIC', 'TOEFL', 'IELTS', 'JLPT', 'HSK', 'DELF']),
+			score: randomInt(10, 990),
+			expired_at: randomDate(2025, 2028)
+		})
+	},
+	{
+		key: 'cultural_events',
+		label: 'Cultural Events',
+		icon: 'ri-empathy-line',
+		desc: 'กิจกรรมทางวัฒนธรรม (งานวัด, เทศกาลดนตรี)',
+		generator: (id) => ({
+			id,
+			event_name: pick(['Songkran Festival', 'Loy Krathong', 'Oktoberfest', 'Diwali', 'Hanami']),
+			origin_country: pick(['Thailand', 'Germany', 'India', 'Japan', 'USA']),
+			month: pick(['April', 'November', 'October', 'December']),
+			type: pick(['Traditional', 'Modern', 'Religious', 'Music']),
+			estimated_visitors: randomInt(10000, 1000000)
+		})
+	},
+	{
+		key: 'sports_matches',
+		label: 'Sports Matches',
+		icon: 'ri-ping-pong-line',
+		desc: 'แมตชแข่งขันกีฬา (ทีม, ผลการแข่งขัน)',
+		generator: (id) => ({
+			id,
+			sport: pick(['Football', 'Basketball', 'Tennis', 'Volleyball']),
+			home_team: pick(['Team Red', 'Team Blue', 'Lions', 'Dragons']),
+			away_team: pick(['Team White', 'Team Black', 'Eagles', 'Tigers']),
+			final_score: `${randomInt(0, 5)}-${randomInt(0, 5)}`,
+			status: pick(['Final', 'Live', 'Postponed']),
+			stadium: `Central Arena ${randomInt(1, 4)}`
+		})
+	},
+	{
+		key: 'athlete_stats',
+		label: 'Athlete Stats',
+		icon: 'ri-user-follow-line',
+		desc: 'สถิตินักกีฬา (ค่าพลัง, ความสูง น้ำหนัก)',
+		generator: (id) => ({
+			id,
+			name: `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`,
+			sport: pick(['Football', 'Basketball', 'Swimming']),
+			performance_rating: (7.0 + Math.random() * 3.0).toFixed(1),
+			height_cm: randomInt(160, 205),
+			weight_kg: randomInt(50, 110),
+			nationality: pick(['TH', 'USA', 'BR', 'ES', 'JP'])
+		})
+	},
+	{
+		key: 'olympic_medals',
+		label: 'Olympic Medals',
+		icon: 'ri-trophy-line',
+		desc: 'เหรียญรางวัลโอลิมปิก (ประเทศ, เหรียญทอง/เงิน/ทองแดง)',
+		generator: (id) => ({
+			id,
+			country: pick(['USA', 'China', 'Japan', 'Thailand', 'UK', 'Australia']),
+			gold: randomInt(0, 40),
+			silver: randomInt(0, 40),
+			bronze: randomInt(0, 40),
+			total: 0, // calculated later if needed
+			year: 2024
+		})
+	},
+	{
+		key: 'space_missions',
+		label: 'Space Missions',
+		icon: 'ri-rocket-fill',
+		desc: 'ภารกิจอวกาศ (ชื่อยาน, จุดหมาย, สถานะ)',
+		generator: (id) => ({
+			id,
+			mission_name: pick(['Apollo 11', 'Artemis I', 'Mars Rover', 'Voyager 1', 'Juno']),
+			target: pick(['Moon', 'Mars', 'Jupiter', 'Saturn', 'Outer Space']),
+			agency: pick(['NASA', 'ESA', 'JAXA', 'SpaceX', 'ISRO']),
+			launch_year: randomInt(1960, 2024),
+			status: pick(['Successful', 'Active', 'Lost Contact', 'Decommissioned'])
+		})
+	},
+	{
+		key: 'celestial_bodies',
+		label: 'Celestial Bodies',
+		icon: 'ri-sun-line',
+		desc: 'วัตถุในอวกาศ (ชื่อดาว, ประเภท, ระยะทาง)',
+		generator: (id) => ({
+			id,
+			name: pick(['Mars', 'Venus', 'Andromeda Galaxy', 'Sirius', 'Alpha Centauri']),
+			type: pick(['Planet', 'Galaxy', 'Star', 'Nebula', 'Black Hole']),
+			distance_light_years: (Math.random() * 1000).toFixed(2),
+			discovered_by: pick(['Newton', 'Galileo', 'Hubble', 'Kepler']),
+			discovery_year: randomInt(1600, 2024)
+		})
+	},
+	{
+		key: 'telescope_obs',
+		label: 'Telescope Obs',
+		icon: 'ri-telescope-line',
+		desc: 'บันทึกกล้องโทรทรรศน์ (วัตถุที่เจอ, ความสว่าง)',
+		generator: (id) => ({
+			id,
+			observatory: pick(['Mauna Kea', 'Atacama', 'Palomar', 'JWST']),
+			target_object: `Obj-${randomInt(100, 999)}`,
+			magnitude: (Math.random() * 20).toFixed(1),
+			exposure_seconds: randomInt(100, 3600),
+			is_transient: secureRandom(100) > 80
+		})
+	},
+	{
+		key: 'environmental_data',
+		label: 'Eco Data',
+		icon: 'ri-temp-hot-line',
+		desc: 'ข้อมูลสิ่งแวดล้อม (ระดับ CO2, มลพิษทางอากาศ)',
+		generator: (id) => ({
+			id,
+			aqi_index: randomInt(10, 250),
+			co2_ppm: randomInt(380, 450),
+			pm2_5: randomInt(5, 150),
+			measure_point: pick(CITIES),
+			condition: pick(['Good', 'Moderate', 'Unhealthy', 'Hazardous']),
+			last_reading: new Date().toISOString()
+		})
+	},
+	{
+		key: 'renewable_energy',
+		label: 'Renewable Energy',
+		icon: 'ri-lightbulb-flash-line',
+		desc: 'พลังงานหมุนเวียน (โซลาร์, ลม, กำลังการผลิต)',
+		generator: (id) => ({
+			id,
+			source: pick(['Solar', 'Wind', 'Hydro', 'Geothermal']),
+			capacity_mw: randomInt(50, 2000),
+			location: pick(['Bangkok', 'Chonburi', 'Phuket', 'Chiang Rai']),
+			efficiency_pct: randomInt(15, 45),
+			estimated_annual_output_gwh: randomInt(100, 5000),
+			status: pick(['Online', 'Maintenance'])
+		})
+	},
+	{
+		key: 'farm_animals',
+		label: 'Farm Animals',
+		icon: 'ri-bear-smile-line',
+		desc: 'สัตว์ฟาร์ม (สายพันธุ์, อายุ, สุขภาพ)',
+		generator: (id) => ({
+			id,
+			animal_type: pick(['Cow', 'Pig', 'Chicken', 'Goat', 'Sheep']),
+			breed: pick(['Holstein', 'Duroc', 'Rhode Island Red', 'Angora']),
+			age_months: randomInt(1, 120),
+			weight_kg: randomInt(1, 800),
+			last_checkup: randomDate(),
+			is_healthy: secureRandom(100) > 10
+		})
+	},
+	{
+		key: 'crops',
+		label: 'Crop Production',
+		icon: 'ri-plant-line',
+		desc: 'ผลผลิตทางการเกษตร (ชนิดข้าว, ปริมาณ, ตลาด)',
+		generator: (id) => ({
+			id,
+			crop_name: pick(['Rice', 'Wheat', 'Corn', 'Soybean', 'Sugarcane']),
+			yield_tonnes: randomInt(100, 5000),
+			area_hectares: randomInt(10, 500),
+			market_price_per_ton: randomInt(8000, 25000),
+			harvest_season: pick(['Rainy', 'Dry', 'Winter']),
+			is_organic: secureRandom(100) > 70
+		})
+	},
+	{
+		key: 'fishing_areas',
+		label: 'Fishing Areas',
+		icon: 'ri-anchor-line',
+		desc: 'แหล่งประมง (ทะเล, ชนิดปลาที่พบมาก)',
+		generator: (id) => ({
+			id,
+			location_name: pick(['Gulf of Thailand', 'Andaman Sea', 'North Sea', 'Pacific Coast']),
+			common_species: pick(['Mackerel', 'Tuna', 'Shrimp', 'Squid', 'Cod']),
+			water_temp_c: randomInt(10, 32),
+			legal_status: pick(['Open', 'Closed Season', 'Protected']),
+			risk_level: pick(['Low', 'Moderate', 'Stormy'])
+		})
+	},
+	{
+		key: 'shipping_containers',
+		label: 'Cloud Containers',
+		icon: 'ri-truck-line',
+		desc: 'ตู้คอนเทนเนอร์ (รหัสตู้, ท่าเรือต้นทาง)',
+		generator: (id) => ({
+			id,
+			container_id: `CNTR-${randomInt(10000, 99999)}`,
+			vessel_name: pick(['Evergreen', 'Maersk', 'MSC', 'COSCO']),
+			origin_port: pick(['Laem Chabang', 'Singapore', 'Shanghai', 'Rotterdam']),
+			destination_port: pick(['Los Angeles', 'Hamburg', 'Dubai', 'Sydney']),
+			cargo_weight_tonnes: randomInt(5, 30),
+			status: pick(['In Transit', 'Customs Clearance', 'Delivered'])
+		})
+	},
+	{
+		key: 'cargo_manifests',
+		label: 'Cargo Manifests',
+		icon: 'ri-clipboard-line',
+		desc: 'รายการสินค้าในตู้ (รายการสินค้า, จำนวน)',
+		generator: (id) => ({
+			id,
+			manifest_id: `MFS-${randomInt(1000, 9999)}`,
+			items: [pick(['Furniture', 'Textiles', 'Electronics', 'Chemicals'])],
+			quantity: randomInt(10, 5000),
+			declared_value: randomInt(5000, 500000),
+			sender: pick(['Global Trade Co.', 'Fast Logistics', 'Union Exp']),
+			receiver: pick(['Retail Plus', 'Home Depot', 'Tech Mart'])
+		})
+	},
+	{
+		key: 'customs_dec',
+		label: 'Customs Dec',
+		icon: 'ri-government-fill',
+		desc: 'ใบขนสินค้าขาเข้า (ภาษี, สถานะการตรวจสอบ)',
+		generator: (id) => ({
+			id,
+			declaration_id: `DEC-${randomInt(100000, 999999)}`,
+			import_duty_pct: pick([0, 5, 10, 20, 30]),
+			vat_pct: 7,
+			is_cleared: secureRandom(100) > 20,
+			agent_name: pick(FIRST_NAMES),
+			inspection_date: randomDate()
+		})
+	},
+	{
+		key: 'logistics_shipments',
+		label: 'Shipments',
+		icon: 'ri-ship-line',
+		desc: 'การขนส่ง (บริษัทขนส่ง, สถานะพัสดุ)',
+		generator: (id) => ({
+			id,
+			tracking_no: `TH${randomInt(100000000, 999999999)}`,
+			carrier: pick(['Kerry', 'Flash', 'J&T', 'Thailand Post', 'DHL']),
+			service_type: pick(['Standard', 'Express', 'Next Day']),
+			current_location: pick(CITIES),
+			est_delivery: randomDate(),
+			last_update: 'Package departed sorting center'
+		})
+	},
+	{
+		key: 'retail_stores',
+		label: 'Retail Stores',
+		icon: 'ri-store-2-line',
+		desc: 'ร้านค้าปลีก (ชื่อร้าน, พิกัด, ยอดขายเฉลี่ย)',
+		generator: (id) => ({
+			id,
+			store_name: `${pick(['Mini', 'Quick', 'Mega', 'Best'])} Mart`,
+			location: pick(CITIES),
+			opening_hours: '08:00 - 22:00',
+			manager: pick(FIRST_NAMES),
+			monthly_revenue: randomInt(100000, 5000000),
+			is_open: secureRandom(100) > 10
+		})
+	},
+	{
+		key: 'loyalty_points',
+		label: 'Loyalty Points',
+		icon: 'ri-hand-coin-line',
+		desc: 'คะแนนสะสม (จำนวนคะแนน, วันหมดอายุ)',
+		generator: (id) => ({
+			id,
+			customer_id: randomInt(1, 1000),
+			points_balance: randomInt(0, 50000),
+			membership_level: pick(['Silver', 'Gold', 'Platinum']),
+			expires_at: randomDate(2025, 2026),
+			last_transaction_points: randomInt(1, 500),
+			is_redeemable: secureRandom(100) > 30
+		})
+	},
+	{
+		key: 'tech_stacks',
+		label: 'Tech Stacks',
+		icon: 'ri-tools-line',
+		desc: 'Stack เทคโนโลยี (เครื่องมือที่ใช้พัฒนาซอฟต์แวร์)',
+		generator: (id) => ({
+			id,
+			stack_name: pick(['Frontend', 'Backend', 'Fullstack', 'DevOps', 'Mobile']),
+			languages: [pick(['TypeScript', 'Go', 'Python', 'Rust', 'Swift'])],
+			frameworks: [pick(['React', 'SvelteKit', 'Next.js', 'Echo', 'Qwik'])],
+			database: pick(['PostgreSQL', 'MongoDB', 'Redis', 'DynamoDB']),
+			cloud: pick(['AWS', 'Vercel', 'Firebase'])
+		})
+	},
+	{
+		key: 'dev_profiles',
+		label: 'Developer Profiles',
+		icon: 'ri-user-settings-line',
+		desc: 'โปรไฟล์นักพัฒนา (ทักษะ, ประสบการณ์)',
+		generator: (id) => ({
+			id,
+			name: `${pick(FIRST_NAMES)} ${pick(LAST_NAMES)}`,
+			role: pick(['Senior Fullstack', 'Junior Web Dev', 'Cloud Architect', 'QA Engineer']),
+			years_of_experience: randomInt(1, 15),
+			preferred_editor: pick(['VS Code', 'Neovim', 'IntelliJ', 'WebStorm']),
+			is_open_to_work: secureRandom(100) > 70
+		})
+	},
+	{
+		key: 'api_keys_mock',
+		label: 'API Keys (Mock)',
+		icon: 'ri-lock-password-line',
+		desc: 'รหัส API (ตัวอย่างข้อมูลปกปิด, วันสร้าง)',
+		generator: (id) => ({
+			id,
+			key_name: `Prod-API-Key-${randomInt(1, 50)}`,
+			api_key: `sk_test_${Math.random().toString(36).substring(2, 22)}`,
+			permissions: pick(['Full Access', 'Read-Only', 'Billing Only']),
+			status: pick(['Active', 'Revoked', 'Expired']),
+			created_at: randomDate()
+		})
 	}
 ];
