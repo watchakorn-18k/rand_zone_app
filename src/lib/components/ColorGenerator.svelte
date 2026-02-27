@@ -9,10 +9,10 @@
   let history: Array<{ colors: string[]; mode: PaletteMode; time: string }> = [];
   let previewTheme: 'light' | 'dark' = 'dark';
 
-  import { ALL_GOOGLE_FONTS } from '$lib/data/google-fonts';
+  import { ALL_GOOGLE_FONTS, type GoogleFont } from '$lib/data/google-fonts';
   import { base } from '$app/paths';
 
-  let selectedFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Prompt') || ALL_GOOGLE_FONTS[0];
+  let selectedFont: GoogleFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Prompt') || ALL_GOOGLE_FONTS[0];
 
   function randomFont() {
     selectedFont = ALL_GOOGLE_FONTS[Math.floor(Math.random() * ALL_GOOGLE_FONTS.length)];
@@ -139,7 +139,7 @@
 
 <svelte:head>
   <link rel="stylesheet" href="{base}/fonts/thai-fonts.css" />
-  {#if !selectedFont.isLocal && (!selectedFont.cssUrl)}
+  {#if !selectedFont.isLocal && !selectedFont.cssUrl}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={selectedFont.name.replace(/ /g, '+')}:wght@400;700&display=swap" />
   {:else if selectedFont.cssUrl}
     <link rel="stylesheet" href={selectedFont.cssUrl} />
@@ -188,8 +188,12 @@
           class="aspect-square rounded-2xl border-4 border-white/5 shadow-lg flex items-end justify-center pb-3 cursor-pointer transition-transform hover:scale-105"
           style="background-color: {color}"
           on:click={() => copyText(color)}
+          on:keydown={(e) => e.key === 'Enter' && copyText(color)}
+          role="button"
+          tabindex="0"
+          aria-label="คัดลอกรหัสสี {color}"
         >
-          <div class="opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-[10px] text-white font-mono">Copy HEX</div>
+          <div class="opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 backdrop-blur-sm px-2 py-1 rounded text-[10px] text-white font-mono pointer-events-none">Copy HEX</div>
         </div>
         <div class="text-center">
           <div class="text-[11px] font-mono font-bold text-text-primary uppercase">{color}</div>
