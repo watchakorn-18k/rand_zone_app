@@ -772,7 +772,7 @@
 <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
     <header class="text-center pt-10 pb-8 relative">
       <div class="absolute top-2 right-0 sm:right-2 z-20">
-        <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-pri-400 hover:bg-base-700 hover:text-pri-300 transition-colors shadow-lg shadow-base-950/50">
+        <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-pri-400 hover:bg-base-700 hover:text-pri-300 transition-colors">
           <i class="ri-share-forward-line text-sm"></i> แชร์ลิงก์
         </button>
       </div>
@@ -928,7 +928,7 @@
       <div class="text-center mt-10">
         <button
           on:click={startShuffle}
-          class="inline-flex items-center gap-2.5 px-12 py-4 bg-gradient-to-br from-pri-500 to-pri-700 text-white font-bold text-base rounded-2xl shadow-lg shadow-pri-600/25 hover:shadow-pri-500/40 hover:-translate-y-0.5 active:translate-y-0 transition-all"
+          class="inline-flex items-center gap-2.5 px-12 py-4 bg-pri-600 hover:bg-pri-500 active:bg-pri-700 text-white font-semibold text-base rounded-xl transition-colors"
         >
           <i class="ri-shuffle-line text-lg"></i> สุ่มกลุ่มเลย!
         </button>
@@ -999,7 +999,7 @@
           <button
             on:click={spinWheel}
             id="spinBtn"
-            class="w-20 h-20 rounded-full bg-gradient-to-br from-pri-500 to-pri-700 text-white font-bold text-sm shadow-xl shadow-pri-600/30 hover:shadow-pri-500/50 transition-all z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900"
+            class="w-20 h-20 rounded-full bg-pri-600 hover:bg-pri-500 active:bg-pri-700 text-white font-bold text-sm transition-colors z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900"
           >
             <i class="ri-play-fill text-xl"></i>
             <span class="text-[10px] font-mono uppercase tracking-wider">Spin</span>
@@ -1008,7 +1008,7 @@
 
         <div id="wheelResult" class="mt-8 hidden">
           <div
-            class="bg-base-900 border border-pri-500/30 rounded-2xl p-6 text-center anim-glow min-w-[300px]"
+            class="bg-base-900 border border-base-700 rounded-2xl p-6 text-center min-w-[300px]"
           >
             <div class="text-xs font-mono text-pri-400 uppercase tracking-widest mb-2">ผลลัพธ์</div>
             <div id="wheelResultText" class="text-2xl font-bold text-white"></div>
@@ -1123,13 +1123,23 @@
     }
   }
 
-  @keyframes pulseGlow {
-    0%,
-    100% {
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+  @keyframes shuffleCard {
+    from {
+      transform: translateY(-4px) rotate(-2deg);
     }
-    50% {
-      box-shadow: 0 0 40px rgba(59, 130, 246, 0.6);
+    to {
+      transform: translateY(4px) rotate(2deg);
+    }
+  }
+
+  @keyframes chipIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -1143,9 +1153,5 @@
 
   :global(.anim-result) {
     animation: resultIn 0.5s ease backwards;
-  }
-
-  .anim-glow {
-    animation: pulseGlow 1.5s ease infinite;
   }
 </style>
