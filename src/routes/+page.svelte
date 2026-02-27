@@ -5,15 +5,17 @@
   import SpinWheel from '$lib/components/SpinWheel.svelte';
   import NumberGenerator from '$lib/components/NumberGenerator.svelte';
   import UuidGenerator from '$lib/components/UuidGenerator.svelte';
+  import SnowflakeGenerator from '$lib/components/SnowflakeGenerator.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
   let numberGeneratorCmp: NumberGenerator;
   let uuidGeneratorCmp: UuidGenerator;
+  let snowflakeGeneratorCmp: SnowflakeGenerator;
   
-  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' = 'groups';
+  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid') {
+  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake') {
     currentTab = tab;
   }
 
@@ -23,6 +25,7 @@
       const wState = spinWheelCmp?.getState() || {};
       const numState = numberGeneratorCmp?.getState() || {};
       const uuidState = uuidGeneratorCmp?.getState() || {};
+      const sfState = snowflakeGeneratorCmp?.getState() || {};
       
       const payload = {
         n: gState.n,
@@ -32,6 +35,7 @@
         w: wState,
         num: numState,
         uuid: uuidState,
+        sf: sfState,
         t: currentTab
       };
       
@@ -61,6 +65,7 @@
         if (spinWheelCmp && decoded.w) spinWheelCmp.setState(decoded.w);
         if (numberGeneratorCmp && decoded.num) numberGeneratorCmp.setState(decoded.num);
         if (uuidGeneratorCmp && decoded.uuid) uuidGeneratorCmp.setState(decoded.uuid);
+        if (snowflakeGeneratorCmp && decoded.sf) snowflakeGeneratorCmp.setState(decoded.sf);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -138,18 +143,21 @@
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-pri-500 to-transparent"></div>
   </header>
 
-  <div class="grid grid-cols-2 lg:grid-cols-4 bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1.5 mb-6">
-    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-2 rounded-lg text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+  <div class="grid grid-cols-3 lg:grid-cols-5 bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1 mb-6">
+    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-group-line"></i> จับกลุ่ม
     </button>
-    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-2 rounded-lg text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-donut-chart-line"></i> Spin Wheel
+    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+      <i class="ri-donut-chart-line"></i> Wheel
     </button>
-    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-2 rounded-lg text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-numbers-line"></i> ตัวเลข
     </button>
-    <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-2 rounded-lg text-[13px] font-semibold transition-all flex items-center justify-center gap-1.5 {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-fingerprint-line"></i> UUID
+    </button>
+    <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+      <i class="ri-snowflake-line"></i> Snowflake
     </button>
   </div>
 
@@ -164,5 +172,8 @@
   </div>
   <div class={currentTab === 'uuid' ? 'block' : 'hidden'}>
     <UuidGenerator bind:this={uuidGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'snowflake' ? 'block' : 'hidden'}>
+    <SnowflakeGenerator bind:this={snowflakeGeneratorCmp} />
   </div>
 </div>
