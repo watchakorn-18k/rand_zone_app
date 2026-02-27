@@ -675,7 +675,83 @@
     document.getElementById('wheelResult')?.classList.add('hidden');
   }
 
+  function shareLink() {
+    try {
+      const namesInput = (document.getElementById('namesInput') as HTMLTextAreaElement | null)?.value || '';
+      const wheelInput = (document.getElementById('wheelInput') as HTMLTextAreaElement | null)?.value || '';
+      const groupCount = (document.getElementById('groupCount') as HTMLInputElement | null)?.value || '3';
+      const groupSize = (document.getElementById('groupSize') as HTMLInputElement | null)?.value || '4';
+      
+      const payload = {
+        n: namesInput,
+        w: wheelInput,
+        c: groupCount,
+        s: groupSize,
+        m: groupMode,
+        t: document.getElementById('wheelSection')?.classList.contains('hidden') ? 'groups' : 'wheel'
+      };
+      
+      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
+      const url = new URL(window.location.href);
+      url.searchParams.set('d', encoded);
+      
+      navigator.clipboard.writeText(url.toString()).then(() => {
+        showToast('คัดลอกลิงก์แชร์แล้ว ส่งให้เพื่อนได้เลย!');
+      });
+    } catch(e) {
+      console.error(e);
+      showToast('เกิดข้อผิดพลาดในการสร้างลิงก์');
+    }
+  }
+
   onMount(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const d = urlParams.get('d');
+    
+    if (d) {
+      try {
+        const decoded = JSON.parse(decodeURIComponent(atob(d)));
+        
+        if (decoded.n) {
+          const namesInput = document.getElementById('namesInput') as HTMLTextAreaElement | null;
+          if (namesInput) namesInput.value = decoded.n;
+        }
+        if (decoded.w) {
+          const wheelInput = document.getElementById('wheelInput') as HTMLTextAreaElement | null;
+          if (wheelInput) wheelInput.value = decoded.w;
+        }
+        if (decoded.c) {
+          const groupCount = document.getElementById('groupCount') as HTMLInputElement | null;
+          if (groupCount) groupCount.value = decoded.c;
+        }
+        if (decoded.s) {
+          const groupSize = document.getElementById('groupSize') as HTMLInputElement | null;
+          if (groupSize) groupSize.value = decoded.s;
+        }
+        if (decoded.m) {
+          groupMode = decoded.m;
+        }
+        
+        if (decoded.t === 'wheel') {
+          switchMain('wheel');
+        } else {
+          switchMain('groups');
+        }
+
+        setTimeout(() => {
+            onNamesInput();
+            onWheelInput();
+            if (decoded.m) switchGroupMode(decoded.m as 'count'|'size');
+        }, 50);
+
+        showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) {
+        console.error(e);
+        showToast('ลิงก์แชร์ไม่ถูกต้องหรือข้อมูลเสียหาย');
+      }
+    }
+
     updateGroupNames();
     drawWheel();
   });
@@ -695,6 +771,11 @@
 
 <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
     <header class="text-center pt-10 pb-8 relative">
+      <div class="absolute top-2 right-0 sm:right-2 z-20">
+        <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-pri-400 hover:bg-base-700 hover:text-pri-300 transition-colors shadow-lg shadow-base-950/50">
+          <i class="ri-share-forward-line text-sm"></i> แชร์ลิงก์
+        </button>
+      </div>
       <div
         class="inline-flex items-center gap-2 text-xs font-mono text-pri-400 tracking-[0.2em] uppercase mb-3 opacity-80"
       >
