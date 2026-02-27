@@ -161,6 +161,29 @@
 
 <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
   <header class="text-center pt-10 pb-8 relative">
+    <div class="absolute top-2 left-0 sm:left-2 z-20">
+      <a 
+        href="https://github.com/watchakorn-18k/rand_zone_app" 
+        target="_blank" 
+        rel="noopener noreferrer" 
+        class="inline-flex items-center gap-2.5 px-3 py-1.5 bg-bg-panel border border-border-default rounded-xl hover:text-text-primary hover:border-accent-default hover:bg-bg-hover transition-all group shadow-sm"
+      >
+        <div class="relative w-6 h-6 shrink-0">
+          <img 
+            src="https://avatars.githubusercontent.com/u/74919942?v=4" 
+            alt="watchakorn-18k" 
+            class="w-full h-full rounded-full object-cover border border-border-subtle group-hover:border-accent-default transition-colors"
+          />
+          <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-bg-panel rounded-full flex items-center justify-center border border-border-default">
+            <i class="ri-github-fill text-[8px] text-text-tertiary group-hover:text-accent-default"></i>
+          </div>
+        </div>
+        <div class="hidden sm:flex flex-col items-start leading-none gap-0.5">
+          <span class="text-[8px] uppercase tracking-wider text-text-tertiary font-bold">Developed by</span>
+          <span class="text-[11px] font-bold text-text-primary">watchakorn-18k</span>
+        </div>
+      </a>
+    </div>
     <div class="absolute top-2 right-0 sm:right-2 z-20">
       <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bg-panel border border-border-default rounded-lg text-xs font-semibold text-accent-default hover:bg-bg-hover hover:text-accent-default transition-colors">
         <i class="ri-share-forward-line text-sm"></i> แชร์ลิงก์
@@ -244,4 +267,5 @@
   <div class={currentTab === 'lorem' ? 'block' : 'hidden'}>
     <LoremGenerator bind:this={loremGeneratorCmp} />
   </div>
+
 </div>
