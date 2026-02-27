@@ -62,4 +62,25 @@ test.describe('Rand Zone App E2E', () => {
 		// Check animation state
 		await expect(genBtn).toHaveClass(/pointer-events-none/);
 	});
+
+	test('should interact with UUID Generator tab correctly', async ({ page }) => {
+		const uuidTabBtn = page.getByTestId('mainTab4');
+		await uuidTabBtn.click();
+
+		const uuidVersion = page.locator('#uuidVersion');
+		await expect(uuidVersion).toBeVisible();
+		await expect(uuidVersion).toHaveValue('4');
+
+		const uuidCount = page.locator('#uuidCount');
+		await expect(uuidCount).toHaveValue('1');
+
+		await uuidCount.fill('5');
+		await uuidVersion.selectOption('7');
+
+		const genBtn = page.locator('#genUuidBtn');
+		await genBtn.click();
+
+		// Check animation state
+		await expect(genBtn).toHaveClass(/pointer-events-none/);
+	});
 });

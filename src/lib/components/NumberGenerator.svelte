@@ -58,32 +58,47 @@
       const btn = document.getElementById('genNumBtn');
       btn?.classList.add('opacity-50', 'pointer-events-none');
 
-      // Rolling animation effect
-      const duration = 1500 + engine.secureRandomInt(500); // 1.5 - 2s
-      const startTime = performance.now();
-      
-      const animate = (now: number) => {
-        const elapsed = now - startTime;
-        if (elapsed < duration) {
-          // Display random fast changing numbers
-          currentResult = generateSecureDigits(digitCount);
-          requestAnimationFrame(animate);
-        } else {
-          // Finish and show final result
-          currentResult = targetStr;
-          isGenerating = false;
-          btn?.classList.remove('opacity-50', 'pointer-events-none');
-          
-          history.unshift({
-            value: currentResult,
-            time: new Date().toLocaleTimeString('th-TH'),
-            idx: history.length + 1
-          });
-          history = history; // svelte reactivity trigger
-        }
-      };
+      // Phase 1: Fast rolling (all digits randomize rapidly)
+      const fastTicks = 20 + engine.secureRandomInt(10); // 20-30 fast ticks
+      for (let i = 0; i < fastTicks; i++) {
+        currentResult = generateSecureDigits(digitCount);
+        await sleep(30); // very fast
+      }
 
-      requestAnimationFrame(animate);
+      // Phase 2: Gradually slow down (all digits still random, but interval increases) 
+      const slowTicks = 10 + engine.secureRandomInt(5);
+      for (let i = 0; i < slowTicks; i++) {
+        currentResult = generateSecureDigits(digitCount);
+        const delay = 50 + Math.pow(i, 1.8) * 8; // exponential slowdown
+        await sleep(delay);
+      }
+
+      // Phase 3: Lock digits one by one from left to right (suspense!)
+      const lockedDigits = targetStr.split('');
+      for (let lockIdx = 0; lockIdx < digitCount; lockIdx++) {
+        // A few ticks randomizing only the remaining unlocked digits
+        const ticksPerDigit = 3 + engine.secureRandomInt(3);
+        for (let t = 0; t < ticksPerDigit; t++) {
+          const randomPart = generateSecureDigits(digitCount - lockIdx - 1);
+          currentResult = lockedDigits.slice(0, lockIdx).join('') + generateSecureDigits(1) + randomPart;
+          await sleep(80 + lockIdx * 40); // slower for each locked digit
+        }
+        // Lock this digit to the final value
+        currentResult = lockedDigits.slice(0, lockIdx + 1).join('') + generateSecureDigits(Math.max(0, digitCount - lockIdx - 1));
+        await sleep(120 + lockIdx * 60);
+      }
+
+      // Final reveal
+      currentResult = targetStr;
+      isGenerating = false;
+      btn?.classList.remove('opacity-50', 'pointer-events-none');
+      
+      history.unshift({
+        value: currentResult,
+        time: new Date().toLocaleTimeString('th-TH'),
+        idx: history.length + 1
+      });
+      history = history; // svelte reactivity trigger
 
     } catch (error) {
       isGenerating = false;
