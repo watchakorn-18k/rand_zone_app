@@ -10,6 +10,7 @@
   let previewTheme: 'light' | 'dark' = 'dark';
 
   import { ALL_GOOGLE_FONTS } from '$lib/data/google-fonts';
+  import { base } from '$app/paths';
 
   let selectedFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Prompt') || ALL_GOOGLE_FONTS[0];
 
@@ -92,7 +93,8 @@
   $: fontImportHTML = (() => {
     let url = "";
     if (selectedFont.isLocal) {
-      url = "https://watchakorn-18k.github.io/rand_zone_app/fonts/thai-fonts.css";
+      const host = typeof window !== 'undefined' ? window.location.origin : '';
+      url = `${host}${base}/fonts/thai-fonts.css`;
     } else if (selectedFont.cssUrl) {
       url = selectedFont.cssUrl;
     } else {
@@ -104,7 +106,8 @@
   $: fontImportCSS = (() => {
     let url = "";
     if (selectedFont.isLocal) {
-      url = "https://watchakorn-18k.github.io/rand_zone_app/fonts/thai-fonts.css";
+      const host = typeof window !== 'undefined' ? window.location.origin : '';
+      url = `${host}${base}/fonts/thai-fonts.css`;
     } else if (selectedFont.cssUrl) {
       url = selectedFont.cssUrl;
     } else {
@@ -135,7 +138,7 @@
 </script>
 
 <svelte:head>
-  <link rel="stylesheet" href="/fonts/thai-fonts.css" />
+  <link rel="stylesheet" href="{base}/fonts/thai-fonts.css" />
   {#if !selectedFont.isLocal && (!selectedFont.cssUrl)}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={selectedFont.name.replace(/ /g, '+')}:wght@400;700&display=swap" />
   {:else if selectedFont.cssUrl}
