@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import { showToast } from '$lib/utils/toast';
-  import BackgroundSabers from '$lib/components/BackgroundSabers.svelte';
   import GroupShuffler from '$lib/components/GroupShuffler.svelte';
   import SpinWheel from '$lib/components/SpinWheel.svelte';
 
@@ -84,7 +83,6 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
-<BackgroundSabers />
 <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
   <header class="text-center pt-10 pb-8 relative">
     <div class="absolute top-2 right-0 sm:right-2 z-20">

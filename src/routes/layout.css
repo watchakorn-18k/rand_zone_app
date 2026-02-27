@@ -83,4 +83,16 @@
     background-color: var(--color-bg-app);
     color: var(--color-text-primary);
   }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background:
+      linear-gradient(rgba(var(--theme-primary-rgb), 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--theme-primary-rgb), 0.03) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
 }
