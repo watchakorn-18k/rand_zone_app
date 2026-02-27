@@ -105,7 +105,7 @@
     <div class="ml-11 space-y-5">
       <!-- Presets -->
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2">ความปลอดภัยแบบเร็ว</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-2">ความปลอดภัยแบบเร็ว</span>
         <div class="flex gap-2 flex-wrap">
           <button on:click={() => applyPreset('low')} class="px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors bg-bg-panel border-border-default text-text-secondary hover:border-red-400 hover:text-red-400">
             <i class="ri-shield-line mr-1"></i>น้อย (8 ตัว)
@@ -136,7 +136,7 @@
 
       <!-- Charset toggles -->
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2">ชุดตัวอักษร</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-2">ชุดตัวอักษร</span>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <label class="flex items-center gap-2 bg-bg-panel border border-border-default rounded-lg px-3 py-2.5 cursor-pointer hover:border-accent-default transition-colors {useNumbers ? 'border-accent-default bg-accent-default/5' : ''}">
             <input type="checkbox" id="pwNumbers" bind:checked={useNumbers} class="accent-accent-default w-4 h-4" />

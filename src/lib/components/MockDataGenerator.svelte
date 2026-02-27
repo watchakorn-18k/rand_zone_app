@@ -84,7 +84,7 @@
       <!-- Schema Type -->
       <div>
         <div class="flex items-center justify-between mb-2">
-          <label class="block text-xs font-semibold text-text-tertiary">เลือกประเภทข้อมูล ({filteredSchemas.length}/{MOCK_SCHEMAS.length})</label>
+          <span class="block text-xs font-semibold text-text-tertiary">เลือกประเภทข้อมูล ({filteredSchemas.length}/{MOCK_SCHEMAS.length})</span>
           <div class="relative w-48">
             <i class="ri-search-line absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary text-xs"></i>
             <input 

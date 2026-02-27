@@ -100,7 +100,7 @@
     <div class="ml-11 space-y-6">
       <!-- Type Selection -->
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-3 uppercase tracking-wider">เลือกประเภท</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-3 uppercase tracking-wider">เลือกประเภท</span>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {#each types as t}
             <button 

@@ -373,8 +373,19 @@
 
 <!-- Fullscreen Overlay -->
 {#if isFullscreen}
-<div class="wheel-fullscreen" on:click|self={toggleFullscreen}>
-  <button on:click={toggleFullscreen} class="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 backdrop-blur text-white hover:bg-white/20 transition-colors flex items-center justify-center border border-white/20">
+<div 
+  class="wheel-fullscreen" 
+  on:click|self={toggleFullscreen}
+  on:keydown={(e) => e.key === 'Escape' && toggleFullscreen()}
+  role="button"
+  tabindex="0"
+  aria-label="ปิดหน้าต่างขยายใหญ่"
+>
+  <button 
+    on:click={toggleFullscreen} 
+    class="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 backdrop-blur text-white hover:bg-white/20 transition-colors flex items-center justify-center border border-white/20"
+    aria-label="ปิด"
+  >
     <i class="ri-close-line text-xl"></i>
   </button>
   

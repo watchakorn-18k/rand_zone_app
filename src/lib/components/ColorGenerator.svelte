@@ -156,7 +156,7 @@
 
     <div class="ml-11 flex flex-wrap gap-6 items-end">
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider">ทฤษฎีสี / รูปแบบ</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider">ทฤษฎีสี / รูปแบบ</span>
         <div class="flex bg-bg-panel p-1 rounded-xl border border-border-subtle gap-1">
           {#each ['random', 'monochromatic', 'analogous', 'complementary', 'triadic'] as m}
             <button 

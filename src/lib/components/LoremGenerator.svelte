@@ -88,7 +88,7 @@
 
     <div class="ml-11 flex flex-wrap gap-6 items-end">
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider text-[11px]">ภาษา</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider text-[11px]">ภาษา</span>
         <div class="flex bg-bg-panel p-1 rounded-xl border border-border-subtle gap-1">
           <button on:click={() => { lang = 'th'; generate(); }} class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {lang === 'th' ? 'bg-accent-default text-white' : 'text-text-tertiary hover:text-text-secondary'}">ภาษาไทย</button>
           <button on:click={() => { lang = 'en'; generate(); }} class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all {lang === 'en' ? 'bg-accent-default text-white' : 'text-text-tertiary hover:text-text-secondary'}">English</button>
@@ -96,7 +96,7 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider text-[11px]">รูปแบบ</label>
+        <span class="block text-xs font-semibold text-text-tertiary mb-2 uppercase tracking-wider text-[11px]">รูปแบบ</span>
         <div class="flex bg-bg-panel p-1 rounded-xl border border-border-subtle gap-1">
           {#each ['words', 'sentences', 'paragraphs'] as t}
             <button on:click={() => { type = t as any; generate(); }} class="px-4 py-1.5 rounded-lg text-xs font-bold capitalize transition-all {type === t ? 'bg-accent-default text-white' : 'text-text-tertiary hover:text-text-secondary'}">{t}</button>
