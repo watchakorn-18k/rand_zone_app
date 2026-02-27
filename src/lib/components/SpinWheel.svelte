@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
-  import { showToast } from '/utils/toast';
-  import { FairnessEngine } from '/utils/fairness';
+  import { FairnessEngine } from '$lib/utils/fairness';
+  import { showToast } from '$lib/utils/toast';
+
   const engine = new FairnessEngine();
 
   let wheelAngle = 0;
@@ -9,12 +10,64 @@
   let wheelHistory: Array<{ name: string; time: string; idx: number }> = [];
   let removeAfterSpin = false;
 
+  export function getState() {
+    return (document.getElementById('wheelInput') as HTMLTextAreaElement | null)?.value || '';
+  }
 
+  export function setState(w: string) {
+    const el = document.getElementById('wheelInput') as HTMLTextAreaElement | null;
+    if (el) {
+      el.value = w;
+      onWheelInput();
+    }
+  }
+
+  function getWheelItems() {
+    const r = (document.getElementById('wheelInput') as HTMLTextAreaElement | null)?.value.trim() || '';
+    if (!r) return [];
+    return [...new Set((r.includes(',') ? r.split(',') : r.split('\n')).map((n) => n.trim()).filter(Boolean))];
+  }
+
+  function onWheelInput() {
+    const wheelCount = document.getElementById('wheelCount');
+    if (wheelCount) wheelCount.textContent = `${getWheelItems().length} รายการ`;
+    drawWheel();
+  }
+
+  function loadWheelSample() {
+    const wheelInput = document.getElementById('wheelInput') as HTMLTextAreaElement | null;
+    if (!wheelInput) return;
+    wheelInput.value = 'กลุ่ม 1\nกลุ่ม 2\nกลุ่ม 3\nกลุ่ม 4\nกลุ่ม 5';
+    onWheelInput();
+    showToast('โหลดตัวอย่างวงล้อแล้ว');
+  }
+
+  function loadWheelFromGroups() {
+    const lr = (window as any)._lr as { gn: string[] } | undefined;
+    if (!lr) {
+      showToast('ยังไม่มีผลสุ่มกลุ่ม — กรุณาสุ่มก่อน');
+      return;
+    }
+    const wheelInput = document.getElementById('wheelInput') as HTMLTextAreaElement | null;
+    if (!wheelInput) return;
+    wheelInput.value = lr.gn.join('\n');
+    onWheelInput();
+    showToast('โหลดชื่อกลุ่มจากผลสุ่มแล้ว');
+  }
+
+  function getBlueShades(count: number) {
+    const shades: string[] = [];
+    for (let i = 0; i < count; i++) {
+      const lightness = 25 + (((i * 45) / count) % 50);
+      const saturation = 60 + ((i * 20) % 30);
+      shades.push(`hsl(217,${saturation}%,${lightness}%)`);
+    }
     return shades;
   }
 
-  function drawWheel(highlightIdx = -1) {
-    await tick(); const canvas = document.getElementById('wheelCanvas') as HTMLCanvasElement | null;
+  async function drawWheel(highlightIdx = -1) {
+    await tick();
+    const canvas = document.getElementById('wheelCanvas') as HTMLCanvasElement | null;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
@@ -163,7 +216,7 @@
     requestAnimationFrame(animate);
   }
 
-  export function renderHistory() {
+  function renderHistory() {
     const container = document.getElementById('wheelHistory');
     const list = document.getElementById('historyList');
     if (!container || !list) return;
@@ -175,14 +228,12 @@
 
     container.classList.remove('hidden');
     list.innerHTML = wheelHistory
-      .map(
-        (h, i) => `
+      .map((h, i) => `
     <div class="flex items-center gap-3 px-3 py-2 bg-base-800/50 border border-base-800 rounded-lg text-[13px] anim-result" style="animation-delay:${i * 0.03}s">
       <span class="font-mono text-[11px] text-base-600 w-6 text-right">#${wheelHistory.length - i}</span>
       <span class="text-base-200 font-medium flex-1">${h.name}</span>
       <span class="font-mono text-[11px] text-base-600">${h.time}</span>
-    </div>`
-      )
+    </div>`)
       .join('');
   }
 
@@ -192,41 +243,72 @@
     document.getElementById('wheelResult')?.classList.add('hidden');
   }
 
-  function shareLink() {
-    try {
-      const namesInput = (document.getElementById('namesInput') as HTMLTextAreaElement | null)?.value || '';
-      const wheelInput = (document.getElementById('wheelInput') as HTMLTextAreaElement | null)?.value || '';
-      const groupCount = (document.getElementById('groupCount') as HTMLInputElement | null)?.value || '3';
-      const groupSize = (document.getElementById('groupSize') as HTMLInputElement | null)?.value || '4';
-      
-      const payload = {
-        n: namesInput,
-        w: wheelInput,
-        c: groupCount,
-        s: groupSize,
-        m: groupMode,
-        t: document.getElementById('wheelSection')?.classList.contains('hidden') ? 'groups' : 'wheel'
-      };
-      
-      const encoded = btoa(encodeURIComponent(JSON.stringify(payload)));
-
   onMount(() => {
     drawWheel();
   });
 </script>
 
+<div class="space-y-8">
+  <section class="bg-base-900 border border-base-800 rounded-2xl p-6 transition-colors hover:border-base-700">
+    <div class="flex items-center gap-3 mb-1">
+      <div class="w-8 h-8 rounded-lg bg-pri-500/10 text-pri-400 flex items-center justify-center text-sm font-mono font-bold"><i class="ri-list-check"></i></div>
+      <h2 class="text-lg font-bold text-base-100">รายการบนวงล้อ</h2>
+    </div>
+    <p class="text-base-500 text-[13px] mb-5 ml-11 leading-relaxed">ใส่ชื่อคนหรือชื่อกลุ่มที่จะสุ่ม — ทีละบรรทัดหรือคั่นด้วย ,</p>
+    <textarea id="wheelInput" on:input={onWheelInput} class="w-full bg-base-800 border border-base-700 rounded-xl text-base-200 text-sm p-3.5 min-h-[100px] resize-y leading-[1.9] outline-none transition-all focus:border-pri-500 focus:ring-2 focus:ring-pri-500/20 placeholder:text-base-600 font-sans" placeholder="เช่น:&#10;กลุ่ม 1&#10;กลุ่ม 2&#10;กลุ่ม 3"></textarea>
+    <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mt-3">
+      <div class="flex items-center gap-3">
+        <span id="wheelCount" class="font-mono text-xs text-base-500">0 รายการ</span>
+        <label class="flex items-center gap-1.5 cursor-pointer text-[13px] text-base-400 hover:text-base-200 transition-colors bg-base-900 border border-base-800 px-2.5 py-1 rounded-lg">
+          <input type="checkbox" bind:checked={removeAfterSpin} class="w-3.5 h-3.5 rounded border-base-700 bg-base-800 text-pri-500 focus:ring-pri-500 focus:ring-offset-base-900" />
+          <span>คัดออกเมื่อสุ่มได้</span>
+        </label>
+      </div>
+      <div class="flex gap-2 w-full sm:w-auto">
+        <button on:click={loadWheelFromGroups} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-base-300 hover:bg-base-700 transition-colors"><i class="ri-link text-sm"></i> ใช้จากผลสุ่ม</button>
+        <button on:click={loadWheelSample} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-base-300 hover:bg-base-700 transition-colors"><i class="ri-file-list-3-line text-sm"></i> ตัวอย่าง</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="mt-8 flex flex-col items-center">
+    <div class="relative mb-[-14px] z-10">
+      <i class="ri-arrow-down-s-fill text-4xl text-pri-400 drop-shadow-lg"></i>
+    </div>
+    <div id="wheelContainer" class="relative">
+      <canvas id="wheelCanvas" width="400" height="400" class="rounded-full border-4 border-base-700 shadow-2xl max-w-full h-auto"></canvas>
+      <button on:click={spinWheel} id="spinBtn" class="w-20 h-20 rounded-full bg-pri-600 hover:bg-pri-500 active:bg-pri-700 text-white font-bold text-sm transition-colors z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900">
+        <i class="ri-play-fill text-xl"></i>
+        <span class="text-[10px] font-mono uppercase tracking-wider">Spin</span>
+      </button>
+    </div>
+
+    <div id="wheelResult" class="mt-8 hidden w-full max-w-xs">
+      <div class="bg-base-900 border border-base-700 rounded-2xl p-6 text-center">
+        <div class="text-xs font-mono text-pri-400 uppercase tracking-widest mb-2">ผลลัพธ์</div>
+        <div id="wheelResultText" class="text-2xl font-bold text-white break-words"></div>
+      </div>
+    </div>
+
+    <div id="wheelHistory" class="mt-6 w-full max-w-md hidden">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-sm font-semibold text-base-400 flex items-center gap-1.5"><i class="ri-history-line"></i> ประวัติการหมุน</h3>
+        <button on:click={clearHistory} class="text-xs text-base-600 hover:text-base-400 transition-colors"><i class="ri-delete-bin-line"></i> ล้าง</button>
+      </div>
+      <div id="historyList" class="space-y-1.5"></div>
+    </div>
+  </div>
+</div>
 
 <style>
   #wheelContainer {
     position: relative;
     display: inline-block;
   }
-
   #spinBtn {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
-
 </style>
