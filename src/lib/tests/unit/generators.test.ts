@@ -3,7 +3,11 @@ import {
 	DISCORD_EPOCH,
 	encodeSnowflake,
 	decodeSnowflake,
-	generateSecureDigits
+	generateSecureDigits,
+	buildCharset,
+	generatePassword,
+	calcPasswordStrength,
+	type PasswordOptions
 } from '$lib/utils/generators';
 
 describe('Snowflake Encode/Decode', () => {
@@ -152,5 +156,202 @@ describe('generateSecureDigits', () => {
 		expect(result).toHaveLength(1);
 		expect(parseInt(result)).toBeGreaterThanOrEqual(1);
 		expect(parseInt(result)).toBeLessThanOrEqual(9);
+	});
+});
+
+describe('buildCharset', () => {
+	const baseOpts: PasswordOptions = {
+		length: 16,
+		useNumbers: false,
+		useLowercase: false,
+		useUppercase: false,
+		useSpecial: false
+	};
+
+	it('should return empty string when nothing is selected', () => {
+		expect(buildCharset(baseOpts)).toBe('');
+	});
+
+	it('should include digits when useNumbers is true', () => {
+		const charset = buildCharset({ ...baseOpts, useNumbers: true });
+		expect(charset).toContain('0');
+		expect(charset).toContain('9');
+		expect(charset).not.toContain('a');
+	});
+
+	it('should include lowercase when useLowercase is true', () => {
+		const charset = buildCharset({ ...baseOpts, useLowercase: true });
+		expect(charset).toContain('a');
+		expect(charset).toContain('z');
+		expect(charset).not.toContain('A');
+	});
+
+	it('should include uppercase when useUppercase is true', () => {
+		const charset = buildCharset({ ...baseOpts, useUppercase: true });
+		expect(charset).toContain('A');
+		expect(charset).toContain('Z');
+		expect(charset).not.toContain('a');
+	});
+
+	it('should include special chars when useSpecial is true', () => {
+		const charset = buildCharset({ ...baseOpts, useSpecial: true });
+		expect(charset).toContain('!');
+		expect(charset).toContain('@');
+		expect(charset).toContain('#');
+	});
+
+	it('should combine all charsets correctly', () => {
+		const charset = buildCharset({
+			length: 16,
+			useNumbers: true,
+			useLowercase: true,
+			useUppercase: true,
+			useSpecial: true
+		});
+		expect(charset).toContain('0');
+		expect(charset).toContain('a');
+		expect(charset).toContain('A');
+		expect(charset).toContain('!');
+	});
+});
+
+describe('generatePassword', () => {
+	it('should generate a password of the requested length', () => {
+		const pw = generatePassword({
+			length: 20,
+			useNumbers: true,
+			useLowercase: true,
+			useUppercase: true,
+			useSpecial: false
+		});
+		expect(pw).toHaveLength(20);
+	});
+
+	it('should return empty string when no charset is selected', () => {
+		const pw = generatePassword({
+			length: 16,
+			useNumbers: false,
+			useLowercase: false,
+			useUppercase: false,
+			useSpecial: false
+		});
+		expect(pw).toBe('');
+	});
+
+	it('should return empty string when length is 0', () => {
+		const pw = generatePassword({
+			length: 0,
+			useNumbers: true,
+			useLowercase: true,
+			useUppercase: true,
+			useSpecial: true
+		});
+		expect(pw).toBe('');
+	});
+
+	it('should only contain digits when only useNumbers is true', () => {
+		for (let i = 0; i < 10; i++) {
+			const pw = generatePassword({
+				length: 30,
+				useNumbers: true,
+				useLowercase: false,
+				useUppercase: false,
+				useSpecial: false
+			});
+			expect(pw).toMatch(/^\d+$/);
+		}
+	});
+
+	it('should only contain lowercase when only useLowercase is true', () => {
+		for (let i = 0; i < 10; i++) {
+			const pw = generatePassword({
+				length: 30,
+				useNumbers: false,
+				useLowercase: true,
+				useUppercase: false,
+				useSpecial: false
+			});
+			expect(pw).toMatch(/^[a-z]+$/);
+		}
+	});
+
+	it('should only contain uppercase when only useUppercase is true', () => {
+		for (let i = 0; i < 10; i++) {
+			const pw = generatePassword({
+				length: 30,
+				useNumbers: false,
+				useLowercase: false,
+				useUppercase: true,
+				useSpecial: false
+			});
+			expect(pw).toMatch(/^[A-Z]+$/);
+		}
+	});
+
+	it('should generate unique passwords across calls', () => {
+		const passwords = new Set<string>();
+		for (let i = 0; i < 20; i++) {
+			passwords.add(
+				generatePassword({
+					length: 16,
+					useNumbers: true,
+					useLowercase: true,
+					useUppercase: true,
+					useSpecial: true
+				})
+			);
+		}
+		expect(passwords.size).toBeGreaterThanOrEqual(10);
+	});
+
+	it('should handle length of 1', () => {
+		const pw = generatePassword({
+			length: 1,
+			useNumbers: true,
+			useLowercase: false,
+			useUppercase: false,
+			useSpecial: false
+		});
+		expect(pw).toHaveLength(1);
+		expect(pw).toMatch(/^\d$/);
+	});
+});
+
+describe('calcPasswordStrength', () => {
+	it('should return "อ่อน" for very short number-only passwords', () => {
+		const result = calcPasswordStrength('1234');
+		expect(result.label).toBe('อ่อน');
+		expect(result.score).toBeLessThanOrEqual(2);
+	});
+
+	it('should return "ปานกลาง" for moderate passwords', () => {
+		// 8 chars (≥8=+1) + lower(+1) + upper(+1) + digit(+1) = 4
+		const result = calcPasswordStrength('Abc12345');
+		expect(result.label).toBe('ปานกลาง');
+	});
+
+	it('should return "แข็งแรง" for strong passwords', () => {
+		const result = calcPasswordStrength('Abc12345defgh');
+		expect(result.label).toBe('แข็งแรง');
+	});
+
+	it('should return "แข็งแกร่งมาก" for maximum strength passwords', () => {
+		const result = calcPasswordStrength('Abc123!@#defghijklmn');
+		expect(result.label).toBe('แข็งแกร่งมาก');
+		expect(result.score).toBe(7);
+	});
+
+	it('should score 0 for empty string', () => {
+		const result = calcPasswordStrength('');
+		expect(result.score).toBe(0);
+		expect(result.label).toBe('อ่อน');
+	});
+
+	it('should increase score with length', () => {
+		const short = calcPasswordStrength('Aa1!');
+		const medium = calcPasswordStrength('Aa1!Bb2@Cc3#');
+		const long = calcPasswordStrength('Aa1!Bb2@Cc3#Dd4$Ee5%');
+		expect(medium.score).toBeGreaterThan(short.score);
+		expect(long.score).toBeGreaterThan(medium.score);
 	});
 });

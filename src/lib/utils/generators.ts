@@ -54,3 +54,55 @@ export function generateSecureDigits(digits: number): string {
 	}
 	return result;
 }
+
+export interface PasswordOptions {
+	length: number;
+	useNumbers: boolean;
+	useLowercase: boolean;
+	useUppercase: boolean;
+	useSpecial: boolean;
+}
+
+const CHAR_NUMBERS = '0123456789';
+const CHAR_LOWER = 'abcdefghijklmnopqrstuvwxyz';
+const CHAR_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+const CHAR_SPECIAL = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+export function buildCharset(opts: PasswordOptions): string {
+	let charset = '';
+	if (opts.useNumbers) charset += CHAR_NUMBERS;
+	if (opts.useLowercase) charset += CHAR_LOWER;
+	if (opts.useUppercase) charset += CHAR_UPPER;
+	if (opts.useSpecial) charset += CHAR_SPECIAL;
+	return charset;
+}
+
+export function generatePassword(opts: PasswordOptions): string {
+	const charset = buildCharset(opts);
+	if (charset.length === 0 || opts.length <= 0) return '';
+
+	const buf = new Uint32Array(opts.length);
+	crypto.getRandomValues(buf);
+
+	let result = '';
+	for (let i = 0; i < opts.length; i++) {
+		result += charset[buf[i] % charset.length];
+	}
+	return result;
+}
+
+export function calcPasswordStrength(password: string): { score: number; label: string } {
+	let score = 0;
+	if (password.length >= 8) score += 1;
+	if (password.length >= 12) score += 1;
+	if (password.length >= 16) score += 1;
+	if (/[a-z]/.test(password)) score += 1;
+	if (/[A-Z]/.test(password)) score += 1;
+	if (/[0-9]/.test(password)) score += 1;
+	if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+
+	if (score <= 2) return { score, label: 'อ่อน' };
+	if (score <= 4) return { score, label: 'ปานกลาง' };
+	if (score <= 5) return { score, label: 'แข็งแรง' };
+	return { score, label: 'แข็งแกร่งมาก' };
+}

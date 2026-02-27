@@ -97,4 +97,21 @@ test.describe('Rand Zone App E2E', () => {
 		// Check animation state
 		await expect(genBtn).toHaveClass(/pointer-events-none/);
 	});
+
+	test('should interact with Password Generator tab correctly', async ({ page }) => {
+		const pwTabBtn = page.getByTestId('mainTab6');
+		await pwTabBtn.click();
+
+		const lengthSlider = page.locator('#pwLength');
+		await expect(lengthSlider).toBeVisible();
+
+		const numbersCheckbox = page.locator('#pwNumbers');
+		await expect(numbersCheckbox).toBeChecked();
+
+		const genBtn = page.locator('#genPwBtn');
+		await genBtn.click();
+
+		// Wait for password to appear (no animation, instant)
+		await page.waitForTimeout(100);
+	});
 });

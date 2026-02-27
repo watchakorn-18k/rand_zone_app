@@ -6,16 +6,18 @@
   import NumberGenerator from '$lib/components/NumberGenerator.svelte';
   import UuidGenerator from '$lib/components/UuidGenerator.svelte';
   import SnowflakeGenerator from '$lib/components/SnowflakeGenerator.svelte';
+  import PasswordGenerator from '$lib/components/PasswordGenerator.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
   let numberGeneratorCmp: NumberGenerator;
   let uuidGeneratorCmp: UuidGenerator;
   let snowflakeGeneratorCmp: SnowflakeGenerator;
+  let passwordGeneratorCmp: PasswordGenerator;
   
-  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' = 'groups';
+  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake') {
+  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password') {
     currentTab = tab;
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
@@ -29,6 +31,7 @@
       const numState = numberGeneratorCmp?.getState() || {};
       const uuidState = uuidGeneratorCmp?.getState() || {};
       const sfState = snowflakeGeneratorCmp?.getState() || {};
+      const pwState = passwordGeneratorCmp?.getState() || {};
       
       const payload = {
         n: gState.n,
@@ -39,6 +42,7 @@
         num: numState,
         uuid: uuidState,
         sf: sfState,
+        pw: pwState,
         t: currentTab
       };
       
@@ -69,6 +73,7 @@
         if (numberGeneratorCmp && decoded.num) numberGeneratorCmp.setState(decoded.num);
         if (uuidGeneratorCmp && decoded.uuid) uuidGeneratorCmp.setState(decoded.uuid);
         if (snowflakeGeneratorCmp && decoded.sf) snowflakeGeneratorCmp.setState(decoded.sf);
+        if (passwordGeneratorCmp && decoded.pw) passwordGeneratorCmp.setState(decoded.pw);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -77,9 +82,8 @@
         showToast('ลิงก์แชร์ไม่ถูกต้องหรือข้อมูลเสียหาย');
       }
     } else {
-      // Restore tab from ?tab= param on refresh
       const savedTab = urlParams.get('tab');
-      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake'] as const;
+      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password'] as const;
       if (savedTab && validTabs.includes(savedTab as any)) {
         currentTab = savedTab as typeof currentTab;
       }
@@ -152,21 +156,24 @@
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-pri-500 to-transparent"></div>
   </header>
 
-  <div class="grid grid-cols-3 lg:grid-cols-5 bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1 mb-6">
-    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+  <div class="grid grid-cols-3 lg:grid-cols-6 bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1 mb-6">
+    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-group-line"></i> จับกลุ่ม
     </button>
-    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-donut-chart-line"></i> Wheel
     </button>
-    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-numbers-line"></i> ตัวเลข
     </button>
-    <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-fingerprint-line"></i> UUID
     </button>
-    <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-1.5 rounded-lg text-[12px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-snowflake-line"></i> Snowflake
+    </button>
+    <button data-testid="mainTab6" on:click={() => switchMain('password')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'password' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+      <i class="ri-lock-password-line"></i> รหัสผ่าน
     </button>
   </div>
 
@@ -184,5 +191,8 @@
   </div>
   <div class={currentTab === 'snowflake' ? 'block' : 'hidden'}>
     <SnowflakeGenerator bind:this={snowflakeGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'password' ? 'block' : 'hidden'}>
+    <PasswordGenerator bind:this={passwordGeneratorCmp} />
   </div>
 </div>
