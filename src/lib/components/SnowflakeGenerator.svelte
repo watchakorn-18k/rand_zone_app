@@ -1,8 +1,6 @@
 <script lang="ts">
   import { showToast } from '$lib/utils/toast';
-
-  // Discord Epoch: 1 January 2015 00:00:00 UTC
-  const DISCORD_EPOCH = 1420070400000n;
+  import { DISCORD_EPOCH, encodeSnowflake, decodeSnowflake as decodeSnowflakeUtil } from '$lib/utils/generators';
 
   let workerId = 1;
   let processId = 0;
@@ -32,35 +30,24 @@
 
   function generateSnowflake(ts?: bigint): string {
     const timestamp = ts ?? (BigInt(Date.now()) - DISCORD_EPOCH);
-    const wId = BigInt(workerId & 0x1F);
-    const pId = BigInt(processId & 0x1F);
-    const seq = BigInt(sequence & 0xFFF);
-    
-    const snowflake = (timestamp << 22n) | (wId << 17n) | (pId << 12n) | seq;
+    const result = encodeSnowflake(Number(timestamp + DISCORD_EPOCH), workerId, processId, sequence);
     sequence = (sequence + 1) & 0xFFF;
-    return snowflake.toString();
+    return result;
   }
 
-  function decodeSnowflake(id: string) {
+  function handleDecode(id: string) {
     try {
-      const snowflake = BigInt(id.trim());
-      const timestamp = Number((snowflake >> 22n) + DISCORD_EPOCH);
-      const wId = Number((snowflake >> 17n) & 0x1Fn);
-      const pId = Number((snowflake >> 12n) & 0x1Fn);
-      const seq = Number(snowflake & 0xFFFn);
-      
-      const date = new Date(timestamp);
-      
+      const decoded = decodeSnowflakeUtil(id);
       decodeResult = {
-        timestamp: timestamp.toString(),
-        date: date.toLocaleString('th-TH', { 
+        timestamp: decoded.timestamp.toString(),
+        date: decoded.date.toLocaleString('th-TH', { 
           year: 'numeric', month: 'long', day: 'numeric',
           hour: '2-digit', minute: '2-digit', second: '2-digit',
           timeZoneName: 'short'
         }),
-        workerId: wId,
-        processId: pId,
-        sequence: seq
+        workerId: decoded.workerId,
+        processId: decoded.processId,
+        sequence: decoded.sequence
       };
       decodeError = '';
     } catch {
@@ -244,7 +231,7 @@
           placeholder="เช่น 175928847299117063"
           class="flex-1 bg-bg-panel border border-border-default rounded-xl text-text-primary text-base font-mono p-3 outline-none focus:border-accent-default focus:ring-2 focus:ring-pri-500/20 placeholder:text-text-tertiary" 
         />
-        <button on:click={() => decodeSnowflake(decodeInput)} class="px-5 py-3 bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-semibold text-sm rounded-xl transition-colors flex items-center gap-1.5">
+        <button on:click={() => handleDecode(decodeInput)} class="px-5 py-3 bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-semibold text-sm rounded-xl transition-colors flex items-center gap-1.5">
           <i class="ri-search-line"></i> ถอดรหัส
         </button>
       </div>
