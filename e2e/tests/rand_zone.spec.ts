@@ -45,4 +45,21 @@ test.describe('Rand Zone App E2E', () => {
 		const leaderGrid = page.locator('#leaderGrid > div');
 		await expect(leaderGrid).toHaveCount(4);
 	});
+
+	test('should interact with Number Generator tab correctly', async ({ page }) => {
+		const numberTabBtn = page.getByTestId('mainTab3');
+		await numberTabBtn.click();
+
+		const digitInput = page.locator('#digitInput');
+		await expect(digitInput).toBeVisible();
+		await expect(digitInput).toHaveValue('2');
+
+		await digitInput.fill('5');
+
+		const genBtn = page.locator('#genNumBtn');
+		await genBtn.click();
+
+		// Check animation state
+		await expect(genBtn).toHaveClass(/pointer-events-none/);
+	});
 });

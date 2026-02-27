@@ -3,12 +3,14 @@
   import { showToast } from '$lib/utils/toast';
   import GroupShuffler from '$lib/components/GroupShuffler.svelte';
   import SpinWheel from '$lib/components/SpinWheel.svelte';
+  import NumberGenerator from '$lib/components/NumberGenerator.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
-  let currentTab: 'groups' | 'wheel' = 'groups';
+  let numberGeneratorCmp: NumberGenerator;
+  let currentTab: 'groups' | 'wheel' | 'number' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel') {
+  function switchMain(tab: 'groups' | 'wheel' | 'number') {
     currentTab = tab;
   }
 
@@ -16,6 +18,7 @@
     try {
       const gState = groupShufflerCmp.getState();
       const wState = spinWheelCmp.getState();
+      const numState = numberGeneratorCmp.getState();
       
       const payload = {
         n: gState.n,
@@ -23,6 +26,7 @@
         s: gState.s,
         m: gState.m,
         w: wState,
+        num: numState,
         t: currentTab
       };
       
@@ -50,6 +54,7 @@
         await tick();
         if (groupShufflerCmp) groupShufflerCmp.setState(decoded);
         if (spinWheelCmp && decoded.w) spinWheelCmp.setState(decoded.w);
+        if (numberGeneratorCmp && decoded.num) numberGeneratorCmp.setState(decoded.num);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -64,15 +69,15 @@
 
 <svelte:head>
   <title>Rand Zone — ระบบสุ่มกลุ่ม สุ่มรายชื่อ และหมุนวงล้อ Spin Wheel ฟรี ไร้โฆษณา</title>
-  <meta name="description" content="Rand Zone แอปเครื่องมือสุ่มกลุ่ม จัดกลุ่ม จับฉลาก สุ่มรายชื่อ และหมุนวงล้อ (Spin Wheel) ออนไลน์ฟรี ไม่มีโฆษณากวนใจ ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates 7 รอบ" />
-  <meta name="keywords" content="สุ่มกลุ่ม, สุ่มชื่อ, จับฉลาก, หมุนวงล้อ, แบ่งกลุ่ม, spin wheel, random name, เครื่องมือสุ่มฟรี, ไม่มีโฆษณา" />
+  <meta name="description" content="Rand Zone แอปเครื่องมือสุ่มกลุ่ม จัดกลุ่ม จับฉลาก สุ่มรายชื่อ และสุ่มตัวเลข (Number Generator) ออนไลน์ฟรี ไม่มีโฆษณากวนใจ ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates 7 รอบ" />
+  <meta name="keywords" content="สุ่มกลุ่ม, สุ่มชื่อ, จับฉลาก, หมุนวงล้อ, สุ่มตัวเลข, random number generator, แบ่งกลุ่ม, spin wheel, random name, เครื่องมือสุ่มฟรี, ไม่มีโฆษณา" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Rand Zone Tool" />
   <meta name="theme-color" content="#3b82f6" />
   
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Rand Zone — สุ่มจัดกลุ่มและวงล้อออนไลน์ ฟรี ไม่มีโฆษณา" />
-  <meta property="og:description" content="เครื่องมือช่วยตัดสินใจ จัดกลุ่มสุ่มเพื่อน และจับฉลากด้วย Spin Wheel ใช้งานง่าย เร็ว ปราศจากโฆษณาแทรกกวนใจ!" />
+  <meta property="og:title" content="Rand Zone — สุ่มจัดกลุ่มและตัวเลขออนไลน์ ฟรี ไม่มีโฆษณา" />
+  <meta property="og:description" content="เครื่องมือช่วยตัดสินใจ จัดกลุ่มสุ่มเพื่อน และจับฉลากด้วยวงล้อหรือตัวเลข ใช้งานง่าย เร็ว ปราศจากโฆษณาแทรกกวนใจ!" />
   <meta property="og:site_name" content="Rand Zone" />
   
   <meta name="twitter:card" content="summary_large_image" />
@@ -86,7 +91,7 @@
       "name": "Rand Zone",
       "operatingSystem": "Web Browser",
       "applicationCategory": "UtilitiesApplication",
-      "description": "ระบบสุ่มและหมุนวงล้อไร้โฆษณา ทำงานบน Client-side 100% (Static) ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates",
+      "description": "ระบบสุ่มและหมุนวงล้อไร้โฆษณา รวมถึงระบบสุ่มตัวเลข (Random Number Generator) ทำงานบน Client-side 100% (Static) ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates",
       "offers": {
         "@type": "Offer",
         "price": "0",
@@ -96,6 +101,7 @@
         "Cryptographic Randomness (CSPRNG)",
         "Advanced Group Shuffler",
         "Interactive Spin Wheel",
+        "Secure Number Generator",
         "Ad-free",
         "Shareable links"
       ]
@@ -125,12 +131,15 @@
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-pri-500 to-transparent"></div>
   </header>
 
-  <div class="flex bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1.5 mb-6">
+  <div class="flex flex-col sm:flex-row bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1.5 mb-6">
     <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-group-line"></i> สุ่มแบ่งกลุ่ม
     </button>
     <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-donut-chart-line"></i> Spin Wheel
+    </button>
+    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+      <i class="ri-numbers-line"></i> สุ่มตัวเลข
     </button>
   </div>
 
@@ -139,5 +148,8 @@
   </div>
   <div class={currentTab === 'wheel' ? 'block' : 'hidden'}>
     <SpinWheel bind:this={spinWheelCmp} />
+  </div>
+  <div class={currentTab === 'number' ? 'block' : 'hidden'}>
+    <NumberGenerator bind:this={numberGeneratorCmp} />
   </div>
 </div>
