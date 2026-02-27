@@ -3,9 +3,9 @@ export function showToast(msg: string) {
 	document.querySelectorAll('.toast-el').forEach((t) => t.remove());
 	const t = document.createElement('div');
 	t.className =
-		'toast-el fixed bottom-6 right-6 bg-base-800 border border-base-700 rounded-xl px-5 py-3 text-[13px] text-base-200 z-[200] flex items-center gap-2 shadow-xl';
+		'toast-el fixed bottom-6 right-6 bg-bg-panel border border-border-default rounded-xl px-5 py-3 text-[13px] text-text-primary z-[200] flex items-center gap-2 shadow-xl';
 	t.style.animation = 'resultIn 0.3s ease';
-	t.innerHTML = `<i class="ri-information-line text-pri-400"></i><span>${msg}</span>`;
+	t.innerHTML = `<i class="ri-information-line text-accent-default"></i><span>${msg}</span>`;
 	document.body.appendChild(t);
 	setTimeout(() => {
 		t.style.opacity = '0';

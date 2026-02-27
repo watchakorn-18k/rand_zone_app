@@ -2,6 +2,9 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
+  /* =========================================
+     [1] PRIMITIVE COLORS (Core Palette)
+  ========================================= */
   --color-base-50: #f8fafc;
   --color-base-100: #f1f5f9;
   --color-base-200: #e2e8f0;
@@ -26,6 +29,58 @@
   --color-pri-900: #1e3a8a;
   --color-pri-950: #172554;
 
+  /* =========================================
+     [2] SEMANTIC DESIGN TOKENS (For UI)
+     Use these instead of primitives for new UI
+  ========================================= */
+  
+  /* Backgrounds */
+  --color-bg-app: var(--color-base-950);
+  --color-bg-card: var(--color-base-900);
+  --color-bg-panel: var(--color-base-800);
+  --color-bg-hover: var(--color-base-700);
+
+  /* Borders & Dividers */
+  --color-border-subtle: var(--color-base-800);
+  --color-border-default: var(--color-base-700);
+  --color-border-strong: var(--color-base-600);
+
+  /* Typography */
+  --color-text-primary: var(--color-base-100);
+  --color-text-secondary: var(--color-base-400);
+  --color-text-tertiary: var(--color-base-500);
+
+  /* Brand / Action Accent */
+  --color-accent-default: var(--color-pri-500);
+  --color-accent-hover: var(--color-pri-400);
+  --color-accent-active: var(--color-pri-600);
+  --color-accent-surface: color-mix(in srgb, var(--color-pri-500) 10%, transparent);
+  --color-accent-border: color-mix(in srgb, var(--color-pri-500) 25%, transparent);
+
+  /* State / Status */
+  --color-status-success: #10b981;
+  --color-status-error: #ef4444;
+  --color-status-warning: #f59e0b;
+
+  /* =========================================
+     [3] TYPOGRAPHY & SPACING TOKENS
+  ========================================= */
   --font-sans: "IBM Plex Sans Thai", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  --radius-card: 1rem;       /* 16px */
+  --radius-panel: 0.75rem;   /* 12px */
+  --radius-btn: 0.5rem;      /* 8px */
+}
+
+/* Base layer reset to inject our tokens directly */
+@layer base {
+  :root {
+    --theme-primary-rgb: 59, 130, 246; /* To use in rgba() like background animations */
+  }
+
+  body {
+    background-color: var(--color-bg-app);
+    color: var(--color-text-primary);
+  }
 }

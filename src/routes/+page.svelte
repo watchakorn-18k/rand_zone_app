@@ -73,27 +73,27 @@
 <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
   <header class="text-center pt-10 pb-8 relative">
     <div class="absolute top-2 right-0 sm:right-2 z-20">
-      <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-pri-400 hover:bg-base-700 hover:text-pri-300 transition-colors">
+      <button on:click={shareLink} class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-bg-panel border border-border-default rounded-lg text-xs font-semibold text-accent-default hover:bg-bg-hover hover:text-accent-default transition-colors">
         <i class="ri-share-forward-line text-sm"></i> แชร์ลิงก์
       </button>
     </div>
-    <div class="inline-flex items-center gap-2 text-xs font-mono text-pri-400 tracking-[0.2em] uppercase mb-3 opacity-80">
+    <div class="inline-flex items-center gap-2 text-xs font-mono text-accent-default tracking-[0.2em] uppercase mb-3 opacity-80">
       <i class="ri-scales-3-line text-sm"></i><span>Rand Zone</span>
     </div>
     <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-white to-pri-400 bg-clip-text text-transparent leading-tight">
       ระบบสุ่มของ Rand Zone
     </h1>
-    <p class="text-base-500 text-sm mt-2 font-light">
+    <p class="text-text-tertiary text-sm mt-2 font-light">
       Cryptographic Randomness + Fisher-Yates Shuffle &times; 7 รอบ
     </p>
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-pri-500 to-transparent"></div>
   </header>
 
-  <div class="flex bg-base-900 border border-base-800 rounded-xl p-1.5 gap-1.5 mb-6">
-    <button on:click={() => switchMain('groups')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'groups' ? 'bg-pri-600 text-white' : 'text-base-400 hover:text-base-200'}">
+  <div class="flex bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1.5 mb-6">
+    <button on:click={() => switchMain('groups')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-group-line"></i> สุ่มแบ่งกลุ่ม
     </button>
-    <button on:click={() => switchMain('wheel')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'wheel' ? 'bg-pri-600 text-white' : 'text-base-400 hover:text-base-200'}">
+    <button on:click={() => switchMain('wheel')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-donut-chart-line"></i> Spin Wheel
     </button>
   </div>

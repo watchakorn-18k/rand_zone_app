@@ -229,10 +229,10 @@
     container.classList.remove('hidden');
     list.innerHTML = wheelHistory
       .map((h, i) => `
-    <div class="flex items-center gap-3 px-3 py-2 bg-base-800/50 border border-base-800 rounded-lg text-[13px] anim-result" style="animation-delay:${i * 0.03}s">
-      <span class="font-mono text-[11px] text-base-600 w-6 text-right">#${wheelHistory.length - i}</span>
-      <span class="text-base-200 font-medium flex-1">${h.name}</span>
-      <span class="font-mono text-[11px] text-base-600">${h.time}</span>
+    <div class="flex items-center gap-3 px-3 py-2 bg-bg-panel/50 border border-border-subtle rounded-lg text-[13px] anim-result" style="animation-delay:${i * 0.03}s">
+      <span class="font-mono text-[11px] text-text-tertiary w-6 text-right">#${wheelHistory.length - i}</span>
+      <span class="text-text-primary font-medium flex-1">${h.name}</span>
+      <span class="font-mono text-[11px] text-text-tertiary">${h.time}</span>
     </div>`)
       .join('');
   }
@@ -249,51 +249,51 @@
 </script>
 
 <div class="space-y-8">
-  <section class="bg-base-900 border border-base-800 rounded-2xl p-6 transition-colors hover:border-base-700">
+  <section class="bg-bg-card border border-border-subtle rounded-2xl p-6 transition-colors hover:border-border-default">
     <div class="flex items-center gap-3 mb-1">
-      <div class="w-8 h-8 rounded-lg bg-pri-500/10 text-pri-400 flex items-center justify-center text-sm font-mono font-bold"><i class="ri-list-check"></i></div>
-      <h2 class="text-lg font-bold text-base-100">รายการบนวงล้อ</h2>
+      <div class="w-8 h-8 rounded-lg bg-accent-default/10 text-accent-default flex items-center justify-center text-sm font-mono font-bold"><i class="ri-list-check"></i></div>
+      <h2 class="text-lg font-bold text-text-primary">รายการบนวงล้อ</h2>
     </div>
-    <p class="text-base-500 text-[13px] mb-5 ml-11 leading-relaxed">ใส่ชื่อคนหรือชื่อกลุ่มที่จะสุ่ม — ทีละบรรทัดหรือคั่นด้วย ,</p>
-    <textarea id="wheelInput" on:input={onWheelInput} class="w-full bg-base-800 border border-base-700 rounded-xl text-base-200 text-sm p-3.5 min-h-[100px] resize-y leading-[1.9] outline-none transition-all focus:border-pri-500 focus:ring-2 focus:ring-pri-500/20 placeholder:text-base-600 font-sans" placeholder="เช่น:&#10;กลุ่ม 1&#10;กลุ่ม 2&#10;กลุ่ม 3"></textarea>
+    <p class="text-text-tertiary text-[13px] mb-5 ml-11 leading-relaxed">ใส่ชื่อคนหรือชื่อกลุ่มที่จะสุ่ม — ทีละบรรทัดหรือคั่นด้วย ,</p>
+    <textarea id="wheelInput" on:input={onWheelInput} class="w-full bg-bg-panel border border-border-default rounded-xl text-text-primary text-sm p-3.5 min-h-[100px] resize-y leading-[1.9] outline-none transition-all focus:border-accent-default focus:ring-2 focus:ring-pri-500/20 placeholder:text-text-tertiary font-sans" placeholder="เช่น:&#10;กลุ่ม 1&#10;กลุ่ม 2&#10;กลุ่ม 3"></textarea>
     <div class="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center mt-3">
       <div class="flex items-center gap-3">
-        <span id="wheelCount" class="font-mono text-xs text-base-500">0 รายการ</span>
-        <label class="flex items-center gap-1.5 cursor-pointer text-[13px] text-base-400 hover:text-base-200 transition-colors bg-base-900 border border-base-800 px-2.5 py-1 rounded-lg">
-          <input type="checkbox" bind:checked={removeAfterSpin} class="w-3.5 h-3.5 rounded border-base-700 bg-base-800 text-pri-500 focus:ring-pri-500 focus:ring-offset-base-900" />
+        <span id="wheelCount" class="font-mono text-xs text-text-tertiary">0 รายการ</span>
+        <label class="flex items-center gap-1.5 cursor-pointer text-[13px] text-text-secondary hover:text-text-primary transition-colors bg-bg-card border border-border-subtle px-2.5 py-1 rounded-lg">
+          <input type="checkbox" bind:checked={removeAfterSpin} class="w-3.5 h-3.5 rounded border-border-default bg-bg-panel text-pri-500 focus:ring-pri-500 focus:ring-offset-base-900" />
           <span>คัดออกเมื่อสุ่มได้</span>
         </label>
       </div>
       <div class="flex gap-2 w-full sm:w-auto">
-        <button on:click={loadWheelFromGroups} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-base-300 hover:bg-base-700 transition-colors"><i class="ri-link text-sm"></i> ใช้จากผลสุ่ม</button>
-        <button on:click={loadWheelSample} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-base-800 border border-base-700 rounded-lg text-xs font-semibold text-base-300 hover:bg-base-700 transition-colors"><i class="ri-file-list-3-line text-sm"></i> ตัวอย่าง</button>
+        <button on:click={loadWheelFromGroups} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-bg-panel border border-border-default rounded-lg text-xs font-semibold text-text-secondary hover:bg-bg-hover transition-colors"><i class="ri-link text-sm"></i> ใช้จากผลสุ่ม</button>
+        <button on:click={loadWheelSample} class="flex-1 sm:flex-none inline-flex justify-center items-center gap-1.5 px-3 py-2 bg-bg-panel border border-border-default rounded-lg text-xs font-semibold text-text-secondary hover:bg-bg-hover transition-colors"><i class="ri-file-list-3-line text-sm"></i> ตัวอย่าง</button>
       </div>
     </div>
   </section>
 
   <div class="mt-8 flex flex-col items-center">
     <div class="relative mb-[-14px] z-10">
-      <i class="ri-arrow-down-s-fill text-4xl text-pri-400 drop-shadow-lg"></i>
+      <i class="ri-arrow-down-s-fill text-4xl text-accent-default drop-shadow-lg"></i>
     </div>
     <div id="wheelContainer" class="relative">
-      <canvas id="wheelCanvas" width="400" height="400" class="rounded-full border-4 border-base-700 shadow-2xl max-w-full h-auto"></canvas>
-      <button on:click={spinWheel} id="spinBtn" class="w-20 h-20 rounded-full bg-pri-600 hover:bg-pri-500 active:bg-pri-700 text-white font-bold text-sm transition-colors z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900">
+      <canvas id="wheelCanvas" width="400" height="400" class="rounded-full border-4 border-border-default shadow-2xl max-w-full h-auto"></canvas>
+      <button on:click={spinWheel} id="spinBtn" class="w-20 h-20 rounded-full bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-bold text-sm transition-colors z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900">
         <i class="ri-play-fill text-xl"></i>
         <span class="text-[10px] font-mono uppercase tracking-wider">Spin</span>
       </button>
     </div>
 
     <div id="wheelResult" class="mt-8 hidden w-full max-w-xs">
-      <div class="bg-base-900 border border-base-700 rounded-2xl p-6 text-center">
-        <div class="text-xs font-mono text-pri-400 uppercase tracking-widest mb-2">ผลลัพธ์</div>
+      <div class="bg-bg-card border border-border-default rounded-2xl p-6 text-center">
+        <div class="text-xs font-mono text-accent-default uppercase tracking-widest mb-2">ผลลัพธ์</div>
         <div id="wheelResultText" class="text-2xl font-bold text-white break-words"></div>
       </div>
     </div>
 
     <div id="wheelHistory" class="mt-6 w-full max-w-md hidden">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-sm font-semibold text-base-400 flex items-center gap-1.5"><i class="ri-history-line"></i> ประวัติการหมุน</h3>
-        <button on:click={clearHistory} class="text-xs text-base-600 hover:text-base-400 transition-colors"><i class="ri-delete-bin-line"></i> ล้าง</button>
+        <h3 class="text-sm font-semibold text-text-secondary flex items-center gap-1.5"><i class="ri-history-line"></i> ประวัติการหมุน</h3>
+        <button on:click={clearHistory} class="text-xs text-text-tertiary hover:text-text-secondary transition-colors"><i class="ri-delete-bin-line"></i> ล้าง</button>
       </div>
       <div id="historyList" class="space-y-1.5"></div>
     </div>
