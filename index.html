@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FairShuffle — ระบบสุ่มกลุ่มและ Spin Wheel</title>
+    <title>Rand Zone — ระบบสุ่มกลุ่มและ Spin Wheel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css"
@@ -133,12 +133,12 @@
         <div
           class="inline-flex items-center gap-2 text-xs font-mono text-pri-400 tracking-[0.2em] uppercase mb-3 opacity-80"
         >
-          <i class="ri-scales-3-line text-sm"></i><span>FairShuffle</span>
+          <i class="ri-scales-3-line text-sm"></i><span>Rand Zone</span>
         </div>
         <h1
           class="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-white to-pri-400 bg-clip-text text-transparent leading-tight"
         >
-          ระบบสุ่มที่ยุติธรรมที่สุด
+          ระบบสุ่มของ Rand Zone
         </h1>
         <p class="text-base-500 text-sm mt-2 font-light">
           Cryptographic Randomness + Fisher-Yates Shuffle &times; 7 รอบ
@@ -823,7 +823,7 @@
       function copyResults() {
         if (!window._lr) return;
         const { groups, gn } = window._lr;
-        let t = "ผลการสุ่มกลุ่ม (FairShuffle)\n" + "=".repeat(30) + "\n\n";
+        let t = "ผลการสุ่มกลุ่ม (Rand Zone)\n" + "=".repeat(30) + "\n\n";
         groups.forEach((g, i) => {
           t += `[ ${gn[i]} ] (${g.length} คน)\n`;
           g.forEach((m) => {

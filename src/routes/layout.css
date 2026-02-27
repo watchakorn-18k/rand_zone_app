@@ -1,2 +1,31 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+
+@theme {
+  --color-base-50: #f8fafc;
+  --color-base-100: #f1f5f9;
+  --color-base-200: #e2e8f0;
+  --color-base-300: #cbd5e1;
+  --color-base-400: #94a3b8;
+  --color-base-500: #64748b;
+  --color-base-600: #475569;
+  --color-base-700: #334155;
+  --color-base-800: #1e293b;
+  --color-base-900: #0f172a;
+  --color-base-950: #020617;
+
+  --color-pri-50: #eff6ff;
+  --color-pri-100: #dbeafe;
+  --color-pri-200: #bfdbfe;
+  --color-pri-300: #93c5fd;
+  --color-pri-400: #60a5fa;
+  --color-pri-500: #3b82f6;
+  --color-pri-600: #2563eb;
+  --color-pri-700: #1d4ed8;
+  --color-pri-800: #1e40af;
+  --color-pri-900: #1e3a8a;
+  --color-pri-950: #172554;
+
+  --font-sans: "IBM Plex Sans Thai", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}

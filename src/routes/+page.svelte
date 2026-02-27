@@ -82,6 +82,7 @@
   let wheelAngle = 0;
   let wheelSpinning = false;
   let wheelHistory: Array<{ name: string; time: string; idx: number }> = [];
+  let removeAfterSpin = false;
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -419,18 +420,17 @@
     });
 
     a.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    (window as Window & { _lr?: { groups: Array<Array<{ name: string; isLeader: boolean }>; gn: string[] } })._lr = {
-      groups,
-      gn
-    };
+    (window as any)._lr = { groups, gn };
   }
 
   function copyResults() {
-    const lr = (window as Window & { _lr?: { groups: Array<Array<{ name: string; isLeader: boolean }>; gn: string[] } })._lr;
+    const lr = (window as any)._lr as
+      | { groups: Array<Array<{ name: string; isLeader: boolean }>>; gn: string[] }
+      | undefined;
     if (!lr) return;
 
     const { groups, gn } = lr;
-    let t = 'ผลการสุ่มกลุ่ม (FairShuffle)\n' + '='.repeat(30) + '\n\n';
+    let t = 'ผลการสุ่มกลุ่ม (Rand Zone)\n' + '='.repeat(30) + '\n\n';
 
     groups.forEach((g, i) => {
       t += `[ ${gn[i]} ] (${g.length} คน)\n`;
@@ -473,7 +473,7 @@
   }
 
   function loadWheelFromGroups() {
-    const lr = (window as Window & { _lr?: { gn: string[] } })._lr;
+    const lr = (window as any)._lr as { gn: string[] } | undefined;
     if (!lr) {
       showToast('ยังไม่มีผลสุ่มกลุ่ม — กรุณาสุ่มก่อน');
       return;
@@ -627,6 +627,19 @@
           idx: wheelHistory.length + 1
         });
         renderHistory();
+
+        if (removeAfterSpin) {
+          const currentItems = getWheelItems();
+          const idx = currentItems.indexOf(result);
+          if (idx > -1) {
+            currentItems.splice(idx, 1);
+            const wheelInput = document.getElementById('wheelInput') as HTMLTextAreaElement | null;
+            if (wheelInput) {
+              wheelInput.value = currentItems.join('\n');
+              onWheelInput();
+            }
+          }
+        }
       }
     }
 
@@ -669,8 +682,7 @@
 </script>
 
 <svelte:head>
-  <title>FairShuffle — ระบบสุ่มกลุ่มและ Spin Wheel</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Rand Zone — ระบบสุ่มกลุ่มและ Spin Wheel</title>
   <link
     href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css"
     rel="stylesheet"
@@ -679,60 +691,19 @@
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   />
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            base: {
-              50: '#f8fafc',
-              100: '#f1f5f9',
-              200: '#e2e8f0',
-              300: '#cbd5e1',
-              400: '#94a3b8',
-              500: '#64748b',
-              600: '#475569',
-              700: '#334155',
-              800: '#1e293b',
-              900: '#0f172a',
-              950: '#020617'
-            },
-            pri: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              200: '#bfdbfe',
-              300: '#93c5fd',
-              400: '#60a5fa',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-              950: '#172554'
-            }
-          },
-          fontFamily: {
-            sans: ['IBM Plex Sans Thai', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace']
-          }
-        }
-      }
-    };
-  </script>
 </svelte:head>
 
-<div class="bg-base-950 text-base-300 font-sans min-h-screen antialiased">
-  <div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
+<div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
     <header class="text-center pt-10 pb-8 relative">
       <div
         class="inline-flex items-center gap-2 text-xs font-mono text-pri-400 tracking-[0.2em] uppercase mb-3 opacity-80"
       >
-        <i class="ri-scales-3-line text-sm"></i><span>FairShuffle</span>
+        <i class="ri-scales-3-line text-sm"></i><span>Rand Zone</span>
       </div>
       <h1
         class="text-3xl sm:text-4xl font-bold bg-gradient-to-br from-white to-pri-400 bg-clip-text text-transparent leading-tight"
       >
-        ระบบสุ่มที่ยุติธรรมที่สุด
+        ระบบสุ่มของ Rand Zone
       </h1>
       <p class="text-base-500 text-sm mt-2 font-light">
         Cryptographic Randomness + Fisher-Yates Shuffle &times; 7 รอบ
@@ -818,7 +789,9 @@
           </button>
         </div>
         <div id="modeCount">
-          <label class="block text-xs font-semibold text-base-500 mb-1.5">จำนวนกลุ่ม</label>
+          <label for="groupCount" class="block text-xs font-semibold text-base-500 mb-1.5"
+            >จำนวนกลุ่ม</label
+          >
           <input
             type="number"
             id="groupCount"
@@ -830,7 +803,9 @@
           />
         </div>
         <div id="modeSize" class="hidden">
-          <label class="block text-xs font-semibold text-base-500 mb-1.5">จำนวนสมาชิกต่อกลุ่ม</label>
+          <label for="groupSize" class="block text-xs font-semibold text-base-500 mb-1.5"
+            >จำนวนสมาชิกต่อกลุ่ม</label
+          >
           <input
             type="number"
             id="groupSize"
@@ -842,9 +817,9 @@
           />
         </div>
         <div class="mt-5">
-          <label class="block text-xs font-semibold text-base-500 mb-2.5"
-            ><i class="ri-edit-line mr-1"></i>ชื่อกลุ่ม (ไม่บังคับ)</label
-          >
+          <div class="block text-xs font-semibold text-base-500 mb-2.5">
+            <i class="ri-edit-line mr-1"></i>ชื่อกลุ่ม (ไม่บังคับ)
+          </div>
           <div id="groupNamesContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
         </div>
       </section>
@@ -904,7 +879,13 @@
           placeholder="เช่น:&#10;กลุ่ม 1&#10;กลุ่ม 2&#10;กลุ่ม 3"
         ></textarea>
         <div class="flex justify-between items-center mt-3">
-          <span id="wheelCount" class="font-mono text-xs text-base-500">0 รายการ</span>
+          <div class="flex items-center gap-3">
+            <span id="wheelCount" class="font-mono text-xs text-base-500">0 รายการ</span>
+            <label class="flex items-center gap-1.5 cursor-pointer text-[13px] text-base-400 hover:text-base-200 transition-colors bg-base-900 border border-base-800 px-2.5 py-1 rounded-lg">
+              <input type="checkbox" bind:checked={removeAfterSpin} class="w-3.5 h-3.5 rounded border-base-700 bg-base-800 text-pri-500 focus:ring-pri-500 focus:ring-offset-base-900" />
+              <span>คัดออกเมื่อสุ่มได้</span>
+            </label>
+          </div>
           <div class="flex gap-2">
             <button
               on:click={loadWheelFromGroups}
@@ -937,7 +918,7 @@
           <button
             on:click={spinWheel}
             id="spinBtn"
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 rounded-full bg-gradient-to-br from-pri-500 to-pri-700 text-white font-bold text-sm shadow-xl shadow-pri-600/30 hover:shadow-pri-500/50 transition-all z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900"
+            class="w-20 h-20 rounded-full bg-gradient-to-br from-pri-500 to-pri-700 text-white font-bold text-sm shadow-xl shadow-pri-600/30 hover:shadow-pri-500/50 transition-all z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900"
           >
             <i class="ri-play-fill text-xl"></i>
             <span class="text-[10px] font-mono uppercase tracking-wider">Spin</span>
@@ -991,9 +972,20 @@
       ></div>
     </div>
   </div>
-</div>
 
 <style>
+  #wheelContainer {
+    position: relative;
+    display: inline-block;
+  }
+
+  #spinBtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
   :global(body)::before {
     content: '';
     position: fixed;
@@ -1060,15 +1052,15 @@
     }
   }
 
-  .anim-shuffle {
+  :global(.anim-shuffle) {
     animation: shuffleCard 0.4s ease infinite alternate;
   }
 
-  .anim-chip {
+  :global(.anim-chip) {
     animation: chipIn 0.25s ease;
   }
 
-  .anim-result {
+  :global(.anim-result) {
     animation: resultIn 0.5s ease backwards;
   }
 
