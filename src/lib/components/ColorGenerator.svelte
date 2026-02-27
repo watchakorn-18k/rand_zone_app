@@ -113,6 +113,8 @@
     return `@import url('${url}');`;
   })();
 
+  $: fontCSSProperty = `font-family: '${selectedFont.name}', sans-serif;`;
+
   // Initial generation
   import { onMount } from 'svelte';
   onMount(() => {
@@ -301,9 +303,16 @@
         <div>
           <div class="flex justify-between items-center mb-1.5">
             <span class="text-[11px] font-bold text-text-secondary">Font CSS (@import)</span>
-            <button on:click={() => copyText(fontImportCSS)} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
+            <button on:click={() => copyText(fontImportCSS)} class="text-[10px] text-accent-default hover:underline">Copy Import</button>
           </div>
           <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto">{fontImportCSS}</pre>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-1.5">
+            <span class="text-[11px] font-bold text-text-secondary">Font Family Property</span>
+            <button on:click={() => copyText(fontCSSProperty)} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
+          </div>
+          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto">{fontCSSProperty}</pre>
         </div>
       </div>
     </div>
