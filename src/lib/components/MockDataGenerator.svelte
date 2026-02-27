@@ -1,10 +1,10 @@
 <script lang="ts">
   import { showToast } from '$lib/utils/toast';
+  import { MOCK_SCHEMAS, type SchemaDefinition } from '$lib/data/mock-schemas';
 
-  type SchemaType = 'users' | 'products' | 'orders';
-  
-  let selectedSchema: SchemaType = 'users';
+  let selectedSchema: string = 'users';
   let rowCount = 50;
+  let searchQuery = '';
   let generatedJson = '';
   let generatedData: any[] = [];
 
@@ -19,93 +19,19 @@
     }
   }
 
-  const FIRST_NAMES = ['สมชาย','สมหญิง','ธนา','พิม','กิตติ','อรุณ','จันทร์','วิชัย','นภา','ศิริ','ปิยะ','รัตน์','มานี','ชาติ','วัน','James','Emma','Liam','Olivia','Noah','Ava','Sophia','Lucas','Mia','Ethan'];
-  const LAST_NAMES = ['จันทร์เพ็ญ','ศรีสุข','วงษ์สวัสดิ์','พลอยงาม','มหาพรม','Smith','Johnson','Williams','Brown','Jones','Garcia','Miller','Davis','Rodriguez','Martinez'];
-  const DOMAINS = ['gmail.com','hotmail.com','outlook.com','yahoo.com','company.co.th','work.com'];
-  const CITIES = ['กรุงเทพ','เชียงใหม่','ขอนแก่น','ภูเก็ต','ชลบุรี','นครราชสีมา','สงขลา','อุดรธานี','เชียงราย','พิษณุโลก'];
-  const PRODUCT_ADJ = ['Premium','Ultra','Smart','Pro','Mini','Eco','Super','Classic','Deluxe','Elite'];
-  const PRODUCT_NOUN = ['Headphones','Mouse','Keyboard','Monitor','Camera','Speaker','Charger','Cable','Stand','Light','Hub','Dock','Case','Pen','Bag'];
-  const CATEGORIES = ['Electronics','Home','Sports','Fashion','Books','Toys','Food','Health','Beauty','Office'];
-  const STATUSES = ['pending','processing','shipped','delivered','cancelled'];
-
-  function secureRandom(max: number): number {
-    const buf = new Uint32Array(1);
-    crypto.getRandomValues(buf);
-    return buf[0] % max;
-  }
-
-  function pick<T>(arr: T[]): T {
-    return arr[secureRandom(arr.length)];
-  }
-
-  function randomInt(min: number, max: number): number {
-    return min + secureRandom(max - min + 1);
-  }
-
-  function randomPrice(): number {
-    return Math.round((randomInt(10, 99999) + Math.random()) * 100) / 100;
-  }
-
-  function randomDate(yearStart = 2023, yearEnd = 2025): string {
-    const y = randomInt(yearStart, yearEnd);
-    const m = String(randomInt(1, 12)).padStart(2, '0');
-    const d = String(randomInt(1, 28)).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-  }
-
-  function generateUser(id: number) {
-    const first = pick(FIRST_NAMES);
-    const last = pick(LAST_NAMES);
-    const email = `${first.toLowerCase().replace(/[ก-๛]/g, () => String.fromCharCode(97 + secureRandom(26)))}${randomInt(1, 999)}@${pick(DOMAINS)}`;
-    return {
-      id,
-      first_name: first,
-      last_name: last,
-      email,
-      age: randomInt(18, 65),
-      city: pick(CITIES),
-      phone: `0${randomInt(6, 9)}${randomInt(1000, 9999)}${randomInt(1000, 9999)}`,
-      registered_at: randomDate(),
-      is_active: secureRandom(100) > 20
-    };
-  }
-
-  function generateProduct(id: number) {
-    return {
-      id,
-      name: `${pick(PRODUCT_ADJ)} ${pick(PRODUCT_NOUN)}`,
-      category: pick(CATEGORIES),
-      price: randomPrice(),
-      stock: randomInt(0, 500),
-      rating: Math.round((1 + Math.random() * 4) * 10) / 10,
-      sku: `SKU-${String(randomInt(10000, 99999))}`,
-      created_at: randomDate(),
-      is_available: secureRandom(100) > 10
-    };
-  }
-
-  function generateOrder(id: number) {
-    return {
-      id,
-      order_number: `ORD-${randomDate().replace(/-/g, '')}${randomInt(1000, 9999)}`,
-      customer_id: randomInt(1, 200),
-      product_id: randomInt(1, 200),
-      quantity: randomInt(1, 10),
-      total: randomPrice(),
-      status: pick(STATUSES),
-      ordered_at: randomDate(),
-      shipping_address: `${randomInt(1, 999)} ${pick(CITIES)}`
-    };
-  }
+  $: filteredSchemas = MOCK_SCHEMAS.filter(s => 
+    s.label.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    s.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   function generate() {
     const count = Math.max(1, Math.min(500, rowCount));
-    const data: any[] = [];
+    const schema = MOCK_SCHEMAS.find(s => s.key === selectedSchema);
+    if (!schema) return;
 
+    const data: any[] = [];
     for (let i = 0; i < count; i++) {
-      if (selectedSchema === 'users') data.push(generateUser(i + 1));
-      else if (selectedSchema === 'products') data.push(generateProduct(i + 1));
-      else data.push(generateOrder(i + 1));
+      data.push(schema.generator(i + 1));
     }
 
     generatedData = data;
@@ -140,12 +66,6 @@
       showToast(`คัดลอกสำหรับ Excel/Sheet แล้ว (วางใน spreadsheet ได้เลย)`)
     );
   }
-
-  const schemas: { key: SchemaType; label: string; icon: string; desc: string }[] = [
-    { key: 'users', label: 'Users', icon: 'ri-user-line', desc: 'ข้อมูลผู้ใช้ (ชื่อ, อีเมล, เมือง, โทรศัพท์)' },
-    { key: 'products', label: 'Products', icon: 'ri-shopping-bag-line', desc: 'ข้อมูลสินค้า (ชื่อ, หมวดหมู่, ราคา, สต็อก)' },
-    { key: 'orders', label: 'Orders', icon: 'ri-file-list-3-line', desc: 'ข้อมูลคำสั่งซื้อ (เลขออเดอร์, สถานะ, ยอดรวม)' }
-  ];
   
   // Static API info
   let showApiInfo = false;
@@ -163,15 +83,27 @@
     <div class="ml-11 space-y-5">
       <!-- Schema Type -->
       <div>
-        <label class="block text-xs font-semibold text-text-tertiary mb-2">ประเภทข้อมูล</label>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          {#each schemas as s}
+        <div class="flex items-center justify-between mb-2">
+          <label class="block text-xs font-semibold text-text-tertiary">เลือกประเภทข้อมูล ({filteredSchemas.length}/{MOCK_SCHEMAS.length})</label>
+          <div class="relative w-48">
+            <i class="ri-search-line absolute left-2.5 top-1/2 -translate-y-1/2 text-text-tertiary text-xs"></i>
+            <input 
+              type="text" 
+              placeholder="ค้นหา..." 
+              bind:value={searchQuery}
+              class="w-full bg-bg-panel border border-border-default rounded-lg text-[11px] py-1 pl-8 pr-2 outline-none focus:border-accent-default"
+            />
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
+          {#each filteredSchemas as s}
           <button on:click={() => selectedSchema = s.key} class="text-left p-3 rounded-xl border transition-colors {selectedSchema === s.key ? 'border-accent-default bg-accent-default/5' : 'border-border-default bg-bg-panel hover:border-border-default'}">
             <div class="flex items-center gap-2 mb-1">
               <i class="{s.icon} text-accent-default"></i>
               <span class="text-sm font-semibold text-text-primary">{s.label}</span>
             </div>
-            <p class="text-[11px] text-text-tertiary">{s.desc}</p>
+            <p class="text-[11px] text-text-tertiary line-clamp-1">{s.desc}</p>
           </button>
           {/each}
         </div>

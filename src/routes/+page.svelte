@@ -8,6 +8,9 @@
   import SnowflakeGenerator from '$lib/components/SnowflakeGenerator.svelte';
   import PasswordGenerator from '$lib/components/PasswordGenerator.svelte';
   import MockDataGenerator from '$lib/components/MockDataGenerator.svelte';
+  import SecretGenerator from '$lib/components/SecretGenerator.svelte';
+  import ColorGenerator from '$lib/components/ColorGenerator.svelte';
+  import LoremGenerator from '$lib/components/LoremGenerator.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
@@ -16,10 +19,13 @@
   let snowflakeGeneratorCmp: SnowflakeGenerator;
   let passwordGeneratorCmp: PasswordGenerator;
   let mockDataGeneratorCmp: MockDataGenerator;
+  let secretGeneratorCmp: SecretGenerator;
+  let colorGeneratorCmp: ColorGenerator;
+  let loremGeneratorCmp: LoremGenerator;
   
-  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' = 'groups';
+  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' | 'secrets' | 'colors' | 'lorem' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi') {
+  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' | 'secrets' | 'colors' | 'lorem') {
     currentTab = tab;
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
@@ -35,6 +41,9 @@
       const sfState = snowflakeGeneratorCmp?.getState() || {};
       const pwState = passwordGeneratorCmp?.getState() || {};
       const mockState = mockDataGeneratorCmp?.getState() || {};
+      const secretState = secretGeneratorCmp?.getState() || {};
+      const colorState = colorGeneratorCmp?.getState() || {};
+      const loremState = loremGeneratorCmp?.getState() || {};
       
       const payload = {
         n: gState.n,
@@ -47,6 +56,9 @@
         sf: sfState,
         pw: pwState,
         mock: mockState,
+        sec: secretState,
+        color: colorState,
+        lorem: loremState,
         t: currentTab
       };
       
@@ -79,6 +91,9 @@
         if (snowflakeGeneratorCmp && decoded.sf) snowflakeGeneratorCmp.setState(decoded.sf);
         if (passwordGeneratorCmp && decoded.pw) passwordGeneratorCmp.setState(decoded.pw);
         if (mockDataGeneratorCmp && decoded.mock) mockDataGeneratorCmp.setState(decoded.mock);
+        if (secretGeneratorCmp && decoded.sec) secretGeneratorCmp.setState(decoded.sec);
+        if (colorGeneratorCmp && decoded.color) colorGeneratorCmp.setState(decoded.color);
+        if (loremGeneratorCmp && decoded.lorem) loremGeneratorCmp.setState(decoded.lorem);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -88,7 +103,7 @@
       }
     } else {
       const savedTab = urlParams.get('tab');
-      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password', 'mockapi'] as const;
+      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password', 'mockapi', 'secrets', 'colors', 'lorem'] as const;
       if (savedTab && validTabs.includes(savedTab as any)) {
         currentTab = savedTab as typeof currentTab;
       }
@@ -132,6 +147,8 @@
         "Interactive Spin Wheel",
         "Secure Number Generator",
         "UUID Generator (v7 / v4 / v1 / v6)",
+        "Advanced Password & Secret/Hash Generator",
+        "Mock API Data Generator",
         "Ad-free",
         "Shareable links"
       ]
@@ -185,6 +202,15 @@
       <button data-testid="mainTab7" on:click={() => switchMain('mockapi')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'mockapi' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
         <i class="ri-code-s-slash-line"></i> Mock API
       </button>
+      <button data-testid="mainTab8" on:click={() => switchMain('secrets')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'secrets' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-key-2-line"></i> Secrets
+      </button>
+      <button data-testid="mainTab9" on:click={() => switchMain('colors')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'colors' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-palette-line"></i> Colors
+      </button>
+      <button data-testid="mainTab10" on:click={() => switchMain('lorem')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'lorem' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-text-snippet"></i> Lorem
+      </button>
     </div>
   </div>
 
@@ -208,5 +234,14 @@
   </div>
   <div class={currentTab === 'mockapi' ? 'block' : 'hidden'}>
     <MockDataGenerator bind:this={mockDataGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'secrets' ? 'block' : 'hidden'}>
+    <SecretGenerator bind:this={secretGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'colors' ? 'block' : 'hidden'}>
+    <ColorGenerator bind:this={colorGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'lorem' ? 'block' : 'hidden'}>
+    <LoremGenerator bind:this={loremGeneratorCmp} />
   </div>
 </div>

@@ -128,4 +128,47 @@ test.describe('Rand Zone App E2E', () => {
 		// Wait for JSON to appear
 		await page.waitForTimeout(100);
 	});
+
+	test('should interact with Secrets tab correctly', async ({ page }) => {
+		const secretsTabBtn = page.getByTestId('mainTab8');
+		await secretsTabBtn.click();
+
+		const genSecBtn = page.locator('#genSecBtn');
+		await expect(genSecBtn).toBeVisible();
+
+		// Click generate
+		await genSecBtn.click();
+
+		// Check if at least one result is displayed (SHA-256 is default, 64 chars)
+		const results = page.locator('.break-all');
+		await expect(results.first()).toBeVisible();
+		const text = await results.first().textContent();
+		expect(text?.trim().length).toBe(64);
+	});
+
+	test('should interact with Color Palette tab correctly', async ({ page }) => {
+		const colorsTabBtn = page.getByTestId('mainTab9');
+		await colorsTabBtn.click();
+
+		const genBtn = page.locator('button:has-text("สุ่มพาเลทใหม่")');
+		await expect(genBtn).toBeVisible();
+		await genBtn.click();
+
+		const colors = page.locator('.group .aspect-square');
+		await expect(colors).toHaveCount(5); // Default count is 5
+	});
+
+	test('should interact with Lorem Ipsum tab correctly', async ({ page }) => {
+		const loremTabBtn = page.getByTestId('mainTab10');
+		await loremTabBtn.click();
+
+		const genBtn = page.locator('button:has-text("สร้างข้อความใหม่")');
+		await expect(genBtn).toBeVisible();
+		await genBtn.click();
+
+		const output = page.locator('.min-h-\\[200px\\]');
+		await expect(output).toBeVisible();
+		const text = await output.textContent();
+		expect(text?.length).toBeGreaterThan(0);
+	});
 });
