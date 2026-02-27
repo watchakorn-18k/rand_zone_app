@@ -114,4 +114,18 @@ test.describe('Rand Zone App E2E', () => {
 		// Wait for password to appear (no animation, instant)
 		await page.waitForTimeout(100);
 	});
+
+	test('should interact with Mock API tab correctly', async ({ page }) => {
+		const mockTabBtn = page.getByTestId('mainTab7');
+		await mockTabBtn.click();
+
+		const rowCountInput = page.locator('#jsonRowCount');
+		await expect(rowCountInput).toBeVisible();
+
+		const genBtn = page.locator('#genJsonBtn');
+		await genBtn.click();
+
+		// Wait for JSON to appear
+		await page.waitForTimeout(100);
+	});
 });

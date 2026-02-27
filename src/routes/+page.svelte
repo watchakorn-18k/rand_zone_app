@@ -7,6 +7,7 @@
   import UuidGenerator from '$lib/components/UuidGenerator.svelte';
   import SnowflakeGenerator from '$lib/components/SnowflakeGenerator.svelte';
   import PasswordGenerator from '$lib/components/PasswordGenerator.svelte';
+  import MockDataGenerator from '$lib/components/MockDataGenerator.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
@@ -14,10 +15,11 @@
   let uuidGeneratorCmp: UuidGenerator;
   let snowflakeGeneratorCmp: SnowflakeGenerator;
   let passwordGeneratorCmp: PasswordGenerator;
+  let mockDataGeneratorCmp: MockDataGenerator;
   
-  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' = 'groups';
+  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password') {
+  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi') {
     currentTab = tab;
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
@@ -32,6 +34,7 @@
       const uuidState = uuidGeneratorCmp?.getState() || {};
       const sfState = snowflakeGeneratorCmp?.getState() || {};
       const pwState = passwordGeneratorCmp?.getState() || {};
+      const mockState = mockDataGeneratorCmp?.getState() || {};
       
       const payload = {
         n: gState.n,
@@ -43,6 +46,7 @@
         uuid: uuidState,
         sf: sfState,
         pw: pwState,
+        mock: mockState,
         t: currentTab
       };
       
@@ -74,6 +78,7 @@
         if (uuidGeneratorCmp && decoded.uuid) uuidGeneratorCmp.setState(decoded.uuid);
         if (snowflakeGeneratorCmp && decoded.sf) snowflakeGeneratorCmp.setState(decoded.sf);
         if (passwordGeneratorCmp && decoded.pw) passwordGeneratorCmp.setState(decoded.pw);
+        if (mockDataGeneratorCmp && decoded.mock) mockDataGeneratorCmp.setState(decoded.mock);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -83,7 +88,7 @@
       }
     } else {
       const savedTab = urlParams.get('tab');
-      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password'] as const;
+      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password', 'mockapi'] as const;
       if (savedTab && validTabs.includes(savedTab as any)) {
         currentTab = savedTab as typeof currentTab;
       }
@@ -156,25 +161,31 @@
     <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-px bg-gradient-to-r from-transparent via-pri-500 to-transparent"></div>
   </header>
 
-  <div class="grid grid-cols-3 lg:grid-cols-6 bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1 mb-6">
-    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-group-line"></i> จับกลุ่ม
-    </button>
-    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-donut-chart-line"></i> Wheel
-    </button>
-    <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-numbers-line"></i> ตัวเลข
-    </button>
-    <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-fingerprint-line"></i> UUID
-    </button>
-    <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-snowflake-line"></i> Snowflake
-    </button>
-    <button data-testid="mainTab6" on:click={() => switchMain('password')} class="py-3 px-1 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 {currentTab === 'password' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-      <i class="ri-lock-password-line"></i> รหัสผ่าน
-    </button>
+  <!-- Tab bar: scrollable on mobile -->
+  <div class="overflow-x-auto -mx-1 px-1 mb-6">
+    <div class="inline-flex min-w-full bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1">
+      <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-group-line"></i> จับกลุ่ม
+      </button>
+      <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-donut-chart-line"></i> Wheel
+      </button>
+      <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-numbers-line"></i> ตัวเลข
+      </button>
+      <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-fingerprint-line"></i> UUID
+      </button>
+      <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-snowflake-line"></i> Snowflake
+      </button>
+      <button data-testid="mainTab6" on:click={() => switchMain('password')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'password' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-lock-password-line"></i> รหัสผ่าน
+      </button>
+      <button data-testid="mainTab7" on:click={() => switchMain('mockapi')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'mockapi' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+        <i class="ri-code-s-slash-line"></i> Mock API
+      </button>
+    </div>
   </div>
 
   <div class={currentTab === 'groups' ? 'block' : 'hidden'}>
@@ -194,5 +205,8 @@
   </div>
   <div class={currentTab === 'password' ? 'block' : 'hidden'}>
     <PasswordGenerator bind:this={passwordGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'mockapi' ? 'block' : 'hidden'}>
+    <MockDataGenerator bind:this={mockDataGeneratorCmp} />
   </div>
 </div>
