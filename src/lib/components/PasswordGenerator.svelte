@@ -3,22 +3,24 @@
   import { generatePassword, calcPasswordStrength, type PasswordOptions } from '$lib/utils/generators';
 
   let length = 16;
+  let count = 1;
   let useNumbers = true;
   let useLowercase = true;
   let useUppercase = true;
   let useSpecial = true;
 
-  let currentPassword = '';
+  let currentPasswords: string[] = [];
   let strength: { score: number; label: string } = { score: 0, label: '' };
-  let history: Array<{ value: string; time: string; idx: number; strength: string }> = [];
+  let history: Array<{ values: string[]; time: string; idx: number; strength: string }> = [];
 
   export function getState() {
-    return { l: length, n: useNumbers, lc: useLowercase, uc: useUppercase, sp: useSpecial };
+    return { l: length, c: count, n: useNumbers, lc: useLowercase, uc: useUppercase, sp: useSpecial };
   }
 
   export function setState(state: any) {
     if (state) {
       if (state.l) length = Math.max(4, Math.min(128, parseInt(state.l) || 16));
+      if (state.c) count = Math.max(1, Math.min(100, parseInt(state.c) || 1));
       if (state.n !== undefined) useNumbers = state.n;
       if (state.lc !== undefined) useLowercase = state.lc;
       if (state.uc !== undefined) useUppercase = state.uc;
@@ -54,11 +56,16 @@
       return;
     }
     const opts: PasswordOptions = { length, useNumbers, useLowercase, useUppercase, useSpecial };
-    currentPassword = generatePassword(opts);
-    strength = calcPasswordStrength(currentPassword);
+    
+    const results: string[] = [];
+    for (let i = 0; i < count; i++) {
+      results.push(generatePassword(opts));
+    }
+    currentPasswords = results;
+    strength = calcPasswordStrength(results[0]);
 
     history.unshift({
-      value: currentPassword,
+      values: results,
       time: new Date().toLocaleTimeString('th-TH'),
       idx: history.length + 1,
       strength: strength.label
@@ -66,9 +73,16 @@
     history = history;
   }
 
-  function copyPassword() {
-    if (!currentPassword) return;
-    navigator.clipboard.writeText(currentPassword).then(() => showToast('คัดลอกรหัสผ่านแล้ว'));
+  function copyAll() {
+    if (!currentPasswords.length) return;
+    // Newline-separated = pastes as rows in Excel/Sheets
+    navigator.clipboard.writeText(currentPasswords.join('\n')).then(() => 
+      showToast(`คัดลอก ${currentPasswords.length} รหัสผ่านแล้ว (วางใน Excel/Sheet ได้เลย)`)
+    );
+  }
+
+  function copySingle(pw: string) {
+    navigator.clipboard.writeText(pw).then(() => showToast('คัดลอกรหัสผ่านแล้ว'));
   }
 
   function clearHistory() {
@@ -105,12 +119,18 @@
         </div>
       </div>
 
-      <!-- Length -->
-      <div class="max-w-[240px]">
-        <label for="pwLength" class="block text-xs font-semibold text-text-tertiary mb-2">ความยาว ({length} ตัวอักษร)</label>
-        <input type="range" id="pwLength" min="4" max="128" bind:value={length} class="w-full accent-accent-default" />
-        <div class="flex justify-between text-[10px] text-text-tertiary font-mono mt-1">
-          <span>4</span><span>128</span>
+      <!-- Length + Count row -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label for="pwLength" class="block text-xs font-semibold text-text-tertiary mb-2">ความยาว ({length} ตัวอักษร)</label>
+          <input type="range" id="pwLength" min="4" max="128" bind:value={length} class="w-full accent-accent-default" />
+          <div class="flex justify-between text-[10px] text-text-tertiary font-mono mt-1">
+            <span>4</span><span>128</span>
+          </div>
+        </div>
+        <div>
+          <label for="pwCount" class="block text-xs font-semibold text-text-tertiary mb-2">จำนวน ({count} รายการ)</label>
+          <input type="number" id="pwCount" min="1" max="100" bind:value={count} class="w-full bg-bg-panel border border-border-default rounded-xl text-text-primary text-sm p-3 outline-none focus:border-accent-default focus:ring-2 focus:ring-pri-500/20 font-mono" />
         </div>
       </div>
 
@@ -145,23 +165,42 @@
     </button>
     <div class="mt-4 text-[11px] text-text-tertiary font-mono tracking-wide">Crypto.getRandomValues() &middot; 100% Client-side</div>
 
-    <!-- Result -->
-    {#if currentPassword}
-    <button on:click={copyPassword} class="mt-8 w-full max-w-2xl bg-bg-card border-2 border-border-default hover:border-accent-default rounded-2xl p-5 transition-colors group cursor-pointer text-left">
-      <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-semibold text-text-tertiary flex items-center gap-1.5"><i class="ri-key-2-line text-accent-default"></i> รหัสผ่านที่สุ่มได้</span>
-        <span class="text-[11px] text-text-tertiary group-hover:text-accent-default transition-colors flex items-center gap-1"><i class="ri-file-copy-line"></i> คลิกเพื่อคัดลอก</span>
-      </div>
-      <div class="font-mono text-base sm:text-lg text-white break-all leading-relaxed tracking-wide">{currentPassword}</div>
-      
-      <!-- Strength bar -->
-      <div class="mt-4 flex items-center gap-3">
-        <div class="flex-1 h-1.5 bg-bg-panel rounded-full overflow-hidden">
-          <div class="h-full rounded-full transition-all duration-300 {strengthBarColor}" style="width:{strengthBarPct}%"></div>
+    <!-- Results -->
+    {#if currentPasswords.length > 0}
+    <div class="mt-8 w-full max-w-2xl bg-bg-card border-2 border-border-default rounded-2xl p-5">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <span class="text-xs font-semibold text-text-tertiary flex items-center gap-1.5"><i class="ri-key-2-line text-accent-default"></i> รหัสผ่านที่สุ่มได้ ({currentPasswords.length} รายการ)</span>
+        <div class="flex items-center gap-2">
+          <!-- Strength indicator -->
+          <div class="flex items-center gap-1.5">
+            <div class="w-16 h-1.5 bg-bg-panel rounded-full overflow-hidden">
+              <div class="h-full rounded-full transition-all duration-300 {strengthBarColor}" style="width:{strengthBarPct}%"></div>
+            </div>
+            <span class="text-[11px] font-semibold {strengthColor}">{strength.label}</span>
+          </div>
+          <button on:click={copyAll} class="text-[11px] text-text-secondary hover:text-accent-default transition-colors flex items-center gap-1 bg-bg-panel border border-border-subtle px-2.5 py-1.5 rounded-md">
+            <i class="ri-file-copy-line"></i> คัดลอกทั้งหมด
+          </button>
         </div>
-        <span class="text-xs font-semibold {strengthColor}">{strength.label}</span>
       </div>
-    </button>
+
+      <div class="max-h-[400px] overflow-y-auto space-y-1 pr-1 custom-scrollbar">
+        {#each currentPasswords as pw, i}
+        <button on:click={() => copySingle(pw)} class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-bg-panel/80 border border-transparent hover:border-border-subtle transition-colors group text-left">
+          <span class="font-mono text-[11px] text-text-tertiary w-6 text-right shrink-0">#{i + 1}</span>
+          <span class="font-mono text-[13px] text-text-primary break-all flex-1">{pw}</span>
+          <i class="ri-clipboard-line text-text-tertiary group-hover:text-accent-default opacity-0 group-hover:opacity-100 transition-opacity shrink-0"></i>
+        </button>
+        {/each}
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-border-subtle">
+        <div class="text-[10px] text-text-tertiary flex items-center gap-1.5">
+          <i class="ri-information-line text-accent-default"></i>
+          คลิกรายการใดก็ได้เพื่อคัดลอก หรือกด "คัดลอกทั้งหมด" เพื่อวางใน Excel/Google Sheet เป็นแถวลงมาได้เลย
+        </div>
+      </div>
+    </div>
     {/if}
 
     <!-- History -->
@@ -171,12 +210,19 @@
         <h3 class="text-sm font-semibold text-text-secondary flex items-center gap-1.5"><i class="ri-history-line"></i> ประวัติรหัสผ่าน</h3>
         <button on:click={clearHistory} class="text-xs text-text-tertiary hover:text-text-secondary transition-colors"><i class="ri-delete-bin-line"></i> ล้าง</button>
       </div>
-      <div class="space-y-1.5 max-h-[300px] overflow-y-auto pr-1">
+      <div class="space-y-2 max-h-[250px] overflow-y-auto pr-1">
         {#each history as h, i (h.idx)}
-        <div class="flex items-center gap-3 px-4 py-2.5 bg-bg-panel/50 border border-border-subtle rounded-lg text-[13px] anim-result" style="animation-delay:{i * 0.03}s">
-          <span class="font-mono text-[11px] text-text-tertiary w-6 text-right shrink-0">#{history.length - i}</span>
-          <span class="font-mono text-text-primary break-all flex-1 text-sm">{h.value}</span>
-          <span class="text-[10px] text-text-tertiary shrink-0">{h.time}</span>
+        <div class="p-3 bg-bg-panel/30 border border-border-subtle rounded-lg text-[13px] anim-result" style="animation-delay:{i * 0.03}s">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="font-mono text-[10px] text-text-tertiary">#{history.length - i} &middot; {h.strength} &middot; {h.values.length} รายการ</span>
+            <span class="font-mono text-[11px] text-text-tertiary">{h.time}</span>
+          </div>
+          {#each h.values.slice(0, 3) as v}
+            <div class="font-mono text-[12px] text-text-tertiary px-1 truncate">{v}</div>
+          {/each}
+          {#if h.values.length > 3}
+            <div class="text-[10px] text-text-tertiary text-center mt-1 italic">...และอีก {h.values.length - 3} รายการ</div>
+          {/if}
         </div>
         {/each}
       </div>
@@ -194,4 +240,8 @@
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
+  .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+  .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+  .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--color-border-subtle); border-radius: 20px; }
 </style>

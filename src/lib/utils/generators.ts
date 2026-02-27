@@ -66,7 +66,7 @@ export interface PasswordOptions {
 const CHAR_NUMBERS = '0123456789';
 const CHAR_LOWER = 'abcdefghijklmnopqrstuvwxyz';
 const CHAR_UPPER = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const CHAR_SPECIAL = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+const CHAR_SPECIAL = '!@#$%&*_-';
 
 export function buildCharset(opts: PasswordOptions): string {
 	let charset = '';

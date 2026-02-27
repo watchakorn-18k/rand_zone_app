@@ -198,6 +198,11 @@ describe('buildCharset', () => {
 		expect(charset).toContain('!');
 		expect(charset).toContain('@');
 		expect(charset).toContain('#');
+		expect(charset).toContain('-');
+		expect(charset).not.toContain('<');
+		expect(charset).not.toContain('>');
+		expect(charset).not.toContain('|');
+		expect(charset).not.toContain('~');
 	});
 
 	it('should combine all charsets correctly', () => {
