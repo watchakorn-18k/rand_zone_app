@@ -12,11 +12,6 @@
   import { ALL_GOOGLE_FONTS } from '$lib/data/google-fonts';
 
   let selectedFont = ALL_GOOGLE_FONTS.find(f => f.name === 'Prompt') || ALL_GOOGLE_FONTS[0];
-  let searchTerm = '';
-
-  $: filteredFonts = ALL_GOOGLE_FONTS.filter(f => {
-    return f.name.toLowerCase().includes(searchTerm.toLowerCase());
-  });
 
   function randomFont() {
     selectedFont = ALL_GOOGLE_FONTS[Math.floor(Math.random() * ALL_GOOGLE_FONTS.length)];
@@ -82,17 +77,17 @@
     navigator.clipboard.writeText(text).then(() => showToast('คัดลอกลง Clipboard แล้ว'));
   }
 
-  function getTailwindConfig(): string {
+  $: tailwindConfig = (() => {
     const config: Record<string, string> = {};
     palette.forEach((c, i) => {
       config[`brand-${i + 1}`] = c;
     });
     return JSON.stringify({ theme: { extend: { colors: config } } }, null, 2);
-  }
+  })();
 
-  function getCSSVars(): string {
+  $: cssVars = (() => {
     return `:root {\n${palette.map((c, i) => `  --color-primary-${i + 1}: ${c};`).join('\n')}\n}`;
-  }
+  })();
 
   // Initial generation
   import { onMount } from 'svelte';
@@ -111,17 +106,14 @@
     }
     generatePalette();
   }
-  
-  import '$lib/styles/local-fonts.css';
 </script>
 
 <svelte:head>
-  {#if 'isLocal' in selectedFont && selectedFont.isLocal}
-    <!-- Local fonts are loaded via import in the script -->
-  {:else if 'cssUrl' in selectedFont && selectedFont.cssUrl}
-    <link rel="stylesheet" href={selectedFont.cssUrl} />
-  {:else}
+  <link rel="stylesheet" href="/fonts/thai-fonts.css" />
+  {#if !selectedFont.isLocal && (!selectedFont.cssUrl)}
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family={selectedFont.name.replace(/ /g, '+')}:wght@400;700&display=swap" />
+  {:else if selectedFont.cssUrl}
+    <link rel="stylesheet" href={selectedFont.cssUrl} />
   {/if}
 </svelte:head>
 
@@ -186,21 +178,11 @@
         <div class="flex items-center gap-2">
           <!-- Font Selection -->
           <div class="flex items-center gap-2 bg-bg-panel p-1 rounded-lg border border-border-subtle">
-            <div class="flex items-center gap-1 border-r border-border-subtle pr-2 mr-1">
-              <i class="ri-search-line text-[10px] text-text-tertiary ml-1"></i>
-              <input 
-                type="text" 
-                placeholder="ค้นหาฟอนต์..." 
-                bind:value={searchTerm}
-                class="bg-transparent text-[11px] font-medium text-text-secondary outline-none w-24 placeholder:text-text-tertiary/50"
-              />
-            </div>
-            
             <select 
               bind:value={selectedFont} 
-              class="bg-transparent text-[11px] font-bold text-text-secondary outline-none max-w-[140px] cursor-pointer"
+              class="bg-transparent text-[11px] font-bold text-text-secondary outline-none px-1 cursor-pointer"
             >
-              {#each filteredFonts as f}
+              {#each ALL_GOOGLE_FONTS as f}
                 <option value={f}>{f.name}</option>
               {/each}
             </select>
@@ -274,16 +256,16 @@
         <div>
           <div class="flex justify-between items-center mb-1.5">
             <span class="text-[11px] font-bold text-text-secondary">Tailwind CSS</span>
-            <button on:click={() => copyText(getTailwindConfig())} class="text-[10px] text-accent-default hover:underline">Copy JSON</button>
+            <button on:click={() => copyText(tailwindConfig)} class="text-[10px] text-accent-default hover:underline">Copy JSON</button>
           </div>
-          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto max-h-[100px]">{getTailwindConfig()}</pre>
+          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto max-h-[100px]">{tailwindConfig}</pre>
         </div>
         <div>
           <div class="flex justify-between items-center mb-1.5">
             <span class="text-[11px] font-bold text-text-secondary">CSS Variables</span>
-            <button on:click={() => copyText(getCSSVars())} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
+            <button on:click={() => copyText(cssVars)} class="text-[10px] text-accent-default hover:underline">Copy CSS</button>
           </div>
-          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto max-h-[100px]">{getCSSVars()}</pre>
+          <pre class="bg-bg-panel border border-border-subtle p-3 rounded-xl text-[10px] font-mono text-text-tertiary overflow-x-auto max-h-[100px]">{cssVars}</pre>
         </div>
       </div>
     </div>
