@@ -54,7 +54,7 @@ function rint(min: number, max: number) {
 }
 
 export async function GET() {
-	const data = Array.from({ length: 50 }, (_, i) => ({
+	const data = Array.from({ length: 500 }, (_, i) => ({
 		id: i + 1,
 		name: `${pick(ADJ)} ${pick(NOUN)}`,
 		category: pick(CATEGORIES),

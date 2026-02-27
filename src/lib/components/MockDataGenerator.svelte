@@ -230,9 +230,9 @@
         
         <div class="space-y-2">
           {#each [
-            { path: '/api/v1/mock/users', desc: '50 users' },
-            { path: '/api/v1/mock/products', desc: '50 products' },
-            { path: '/api/v1/mock/orders', desc: '50 orders' }
+            { path: '/api/v1/mock/users', desc: '500 users' },
+            { path: '/api/v1/mock/products', desc: '500 products' },
+            { path: '/api/v1/mock/orders', desc: '500 orders' }
           ] as ep}
           <div class="flex items-center gap-3 bg-bg-card border border-border-subtle rounded-lg px-4 py-2.5">
             <span class="text-[10px] font-mono bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded">GET</span>

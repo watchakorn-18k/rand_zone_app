@@ -7,8 +7,10 @@
 
   let wheelAngle = 0;
   let wheelSpinning = false;
+  let animationId = 0; // incremented each spin to cancel previous
   let wheelHistory: Array<{ name: string; time: string; idx: number }> = [];
   let removeAfterSpin = false;
+  let isFullscreen = false;
 
   export function getState() {
     return (document.getElementById('wheelInput') as HTMLTextAreaElement | null)?.value || '';
@@ -65,14 +67,32 @@
     return shades;
   }
 
+  function getCanvasAndCtx(): { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null {
+    const canvasId = isFullscreen ? 'wheelCanvasFS' : 'wheelCanvas';
+    const canvas = document.getElementById(canvasId) as HTMLCanvasElement | null;
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    return { canvas, ctx };
+  }
+
   async function drawWheel(highlightIdx = -1) {
     await tick();
-    const canvas = document.getElementById('wheelCanvas') as HTMLCanvasElement | null;
-    if (!canvas) return;
+    
+    // Draw on both canvases if fullscreen is open
+    const targets = isFullscreen 
+      ? [document.getElementById('wheelCanvasFS') as HTMLCanvasElement, document.getElementById('wheelCanvas') as HTMLCanvasElement]
+      : [document.getElementById('wheelCanvas') as HTMLCanvasElement];
+    
+    for (const canvas of targets) {
+      if (!canvas) continue;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) continue;
+      drawOnCanvas(canvas, ctx, highlightIdx);
+    }
+  }
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
+  function drawOnCanvas(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, highlightIdx: number) {
     const items = getWheelItems();
     const W = canvas.width;
     const H = canvas.height;
@@ -98,6 +118,7 @@
     const n = items.length;
     const arc = (Math.PI * 2) / n;
     const colors = getBlueShades(n);
+    const isLarge = W >= 500;
 
     for (let i = 0; i < n; i++) {
       const start = wheelAngle + i * arc;
@@ -117,17 +138,21 @@
       ctx.translate(cx, cy);
       ctx.rotate(mid);
       ctx.fillStyle = highlightIdx === i ? '#ffffff' : '#e2e8f0';
-      const fontSize = n > 12 ? 10 : n > 8 ? 12 : 14;
+      const fontSize = isLarge
+        ? (n > 12 ? 14 : n > 8 ? 16 : 20)
+        : (n > 12 ? 10 : n > 8 ? 12 : 14);
       ctx.font = `600 ${fontSize}px "IBM Plex Sans Thai"`;
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
-      const label = items[i].length > 10 ? items[i].slice(0, 9) + '…' : items[i];
+      const maxLen = isLarge ? 14 : 10;
+      const label = items[i].length > maxLen ? items[i].slice(0, maxLen - 1) + '…' : items[i];
       ctx.fillText(label, R - 16, 0);
       ctx.restore();
     }
 
+    const centerR = isLarge ? 56 : 42;
     ctx.beginPath();
-    ctx.arc(cx, cy, 42, 0, Math.PI * 2);
+    ctx.arc(cx, cy, centerR, 0, Math.PI * 2);
     ctx.fillStyle = '#0f172a';
     ctx.fill();
     ctx.strokeStyle = '#334155';
@@ -136,18 +161,24 @@
   }
 
   function spinWheel() {
-    if (wheelSpinning) return;
-
     const items = getWheelItems();
     if (items.length < 2) {
       showToast('ต้องมีอย่างน้อย 2 รายการ');
       return;
     }
 
+    // Cancel any in-progress animation
+    animationId++;
+    const currentAnimId = animationId;
+
     wheelSpinning = true;
-    const btn = document.getElementById('spinBtn');
-    btn?.classList.add('opacity-50', 'pointer-events-none');
     document.getElementById('wheelResult')?.classList.add('hidden');
+    // Hide previous fullscreen result when new spin starts
+    const fsResultClear = document.getElementById('fsResultText');
+    if (fsResultClear) {
+      fsResultClear.classList.remove('opacity-100');
+      fsResultClear.classList.add('opacity-0');
+    }
 
     const buf = new Uint32Array(1);
     crypto.getRandomValues(buf);
@@ -158,38 +189,54 @@
     const sliceMid = targetIdx * arc + arc / 2;
     const targetAngle = -Math.PI / 2 - sliceMid;
 
-    const fullSpins = 5 + engine.secureRandomInt(4);
-    const totalRotation = fullSpins * Math.PI * 2 + ((targetAngle - wheelAngle) % (Math.PI * 2));
+    const fullSpins = 6 + engine.secureRandomInt(3);
+    // Simple forward rotation — no overshoot, no snap-back
+    let totalRotation = fullSpins * Math.PI * 2 + ((targetAngle - wheelAngle) % (Math.PI * 2));
+    // Ensure we always rotate forward (positive direction)
+    if (totalRotation < fullSpins * Math.PI * 2) totalRotation += Math.PI * 2;
     const finalAngle = wheelAngle + totalRotation;
 
     const startAngle = wheelAngle;
-    const duration = 4000 + engine.secureRandomInt(2000);
+    const duration = 6000 + engine.secureRandomInt(1500);
     const startTime = performance.now();
 
-    function easeOutCubic(t: number) {
-      return 1 - Math.pow(1 - t, 3);
+    // Easing: fast spins complete early, then crawl through last ~2 slices
+    // Uses a single smooth curve — no discontinuity
+    function spinEase(t: number): number {
+      // Power-of-4 ease-out: most distance covered early, ultra-slow at end
+      return 1 - Math.pow(1 - t, 4);
     }
 
     function animate(now: number) {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
-      const eased = easeOutCubic(progress);
+      const eased = spinEase(progress);
 
       wheelAngle = startAngle + totalRotation * eased;
-      drawWheel(progress > 0.9 ? targetIdx : -1);
 
-      if (progress < 1) {
+      // Highlight winning slice only in the last 8% (very end of crawl)
+      const highlight = progress > 0.92 ? targetIdx : -1;
+      drawWheel(highlight);
+
+      if (progress < 1 && currentAnimId === animationId) {
         requestAnimationFrame(animate);
-      } else {
+      } else if (currentAnimId === animationId) {
         wheelAngle = finalAngle % (Math.PI * 2);
         drawWheel(targetIdx);
         wheelSpinning = false;
-        btn?.classList.remove('opacity-50', 'pointer-events-none');
 
         const result = items[targetIdx];
         document.getElementById('wheelResult')?.classList.remove('hidden');
         const resultText = document.getElementById('wheelResultText');
         if (resultText) resultText.textContent = result;
+
+        // Show result in fullscreen overlay — stays visible until next spin
+        const fsResult = document.getElementById('fsResultText');
+        if (fsResult) {
+          fsResult.textContent = `🎉 ${result}`;
+          fsResult.classList.remove('opacity-0');
+          fsResult.classList.add('opacity-100');
+        }
 
         wheelHistory.unshift({
           name: result,
@@ -214,6 +261,23 @@
     }
 
     requestAnimationFrame(animate);
+  }
+
+  function toggleFullscreen() {
+    isFullscreen = !isFullscreen;
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+      tick().then(() => drawWheel());
+    } else {
+      document.body.style.overflow = '';
+      tick().then(() => drawWheel());
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape' && isFullscreen) {
+      toggleFullscreen();
+    }
   }
 
   function renderHistory() {
@@ -247,6 +311,8 @@
     drawWheel();
   });
 </script>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="space-y-8">
   <section class="bg-bg-card border border-border-subtle rounded-2xl p-6 transition-colors hover:border-border-default">
@@ -283,6 +349,11 @@
       </button>
     </div>
 
+    <!-- Fullscreen button -->
+    <button on:click={toggleFullscreen} class="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-bg-panel border border-border-default rounded-lg text-xs font-semibold text-text-secondary hover:text-text-primary hover:border-accent-default transition-colors">
+      <i class="ri-fullscreen-line text-sm"></i> ขยายเต็มจอ
+    </button>
+
     <div id="wheelResult" class="mt-8 hidden w-full max-w-xs">
       <div class="bg-bg-card border border-border-default rounded-2xl p-6 text-center">
         <div class="text-xs font-mono text-accent-default uppercase tracking-widest mb-2">ผลลัพธ์</div>
@@ -300,6 +371,32 @@
   </div>
 </div>
 
+<!-- Fullscreen Overlay -->
+{#if isFullscreen}
+<div class="wheel-fullscreen" on:click|self={toggleFullscreen}>
+  <button on:click={toggleFullscreen} class="absolute top-4 right-4 z-50 w-10 h-10 rounded-full bg-white/10 backdrop-blur text-white hover:bg-white/20 transition-colors flex items-center justify-center border border-white/20">
+    <i class="ri-close-line text-xl"></i>
+  </button>
+  
+  <div class="absolute top-6 left-1/2 -translate-x-1/2 z-50">
+    <i class="ri-arrow-down-s-fill text-5xl text-accent-default drop-shadow-lg"></i>
+  </div>
+
+  <div class="relative">
+    <canvas id="wheelCanvasFS" width="600" height="600" class="rounded-full border-4 border-white/10 shadow-2xl"></canvas>
+    <button on:click={spinWheel} id="spinBtnFS" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full bg-accent-default hover:bg-accent-hover active:bg-accent-active text-white font-bold text-base transition-colors z-20 flex flex-col items-center justify-center gap-0.5 border-4 border-base-900 shadow-xl">
+      <i class="ri-play-fill text-3xl"></i>
+      <span class="text-[11px] font-mono uppercase tracking-wider">Spin</span>
+    </button>
+  </div>
+
+  <div id="fsResultText" class="absolute bottom-8 left-1/2 -translate-x-1/2 text-3xl font-bold text-white bg-black/60 backdrop-blur-sm px-8 py-4 rounded-2xl border border-white/10 transition-opacity duration-500 opacity-0 whitespace-nowrap">
+  </div>
+  
+  <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-[11px] text-white/40 font-mono">กด ESC หรือคลิกพื้นหลังเพื่อปิด</div>
+</div>
+{/if}
+
 <style>
   #wheelContainer {
     position: relative;
@@ -310,5 +407,18 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+  }
+  
+  .wheel-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
   }
 </style>

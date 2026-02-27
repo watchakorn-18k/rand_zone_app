@@ -58,7 +58,7 @@ function rint(min: number, max: number) {
 }
 
 export async function GET() {
-	const data = Array.from({ length: 50 }, (_, i) => {
+	const data = Array.from({ length: 500 }, (_, i) => {
 		const first = pick(FIRST_NAMES);
 		const last = pick(LAST_NAMES);
 		return {

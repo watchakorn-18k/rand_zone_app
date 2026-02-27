@@ -24,7 +24,7 @@ function rint(min: number, max: number) {
 }
 
 export async function GET() {
-	const data = Array.from({ length: 50 }, (_, i) => {
+	const data = Array.from({ length: 500 }, (_, i) => {
 		const date = `${rint(2023, 2025)}-${String(rint(1, 12)).padStart(2, '0')}-${String(rint(1, 28)).padStart(2, '0')}`;
 		return {
 			id: i + 1,
