@@ -47,6 +47,27 @@ You can preview the built application using:
 npm run preview
 ```
 
+## 🧪 Testing
+
+This project uses **Vitest** for Unit Testing and **Playwright** for End-to-End (E2E) Testing to ensure mathematical fairness and architectural stability.
+
+### Unit Tests
+To run unit tests (FairnessEngine, Utilities, etc.) instantly:
+```sh
+npm run test
+```
+
+To run unit tests and generate a V8 test coverage report:
+```sh
+npm run test:coverage
+```
+
+### End-to-End (E2E) Tests
+To run full browser automation tests targeting core UI functionality:
+```sh
+npx playwright test e2e/tests
+```
+
 ## 📄 License
 
 This project is licensed under the MIT License - see below for details.

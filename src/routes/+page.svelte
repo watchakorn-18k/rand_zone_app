@@ -90,10 +90,10 @@
   </header>
 
   <div class="flex bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1.5 mb-6">
-    <button on:click={() => switchMain('groups')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-group-line"></i> สุ่มแบ่งกลุ่ม
     </button>
-    <button on:click={() => switchMain('wheel')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
+    <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="flex-1 py-3 px-4 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
       <i class="ri-donut-chart-line"></i> Spin Wheel
     </button>
   </div>
