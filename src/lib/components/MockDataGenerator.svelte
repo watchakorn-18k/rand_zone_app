@@ -131,6 +131,16 @@
     showToast('ดาวน์โหลด JSON แล้ว');
   }
 
+  function copyTsv() {
+    if (!generatedData.length) return;
+    const headers = Object.keys(generatedData[0]);
+    const rows = generatedData.map(row => headers.map(h => String(row[h] ?? '')).join('\t'));
+    const tsv = [headers.join('\t'), ...rows].join('\n');
+    navigator.clipboard.writeText(tsv).then(() =>
+      showToast(`คัดลอกสำหรับ Excel/Sheet แล้ว (วางใน spreadsheet ได้เลย)`)
+    );
+  }
+
   const schemas: { key: SchemaType; label: string; icon: string; desc: string }[] = [
     { key: 'users', label: 'Users', icon: 'ri-user-line', desc: 'ข้อมูลผู้ใช้ (ชื่อ, อีเมล, เมือง, โทรศัพท์)' },
     { key: 'products', label: 'Products', icon: 'ri-shopping-bag-line', desc: 'ข้อมูลสินค้า (ชื่อ, หมวดหมู่, ราคา, สต็อก)' },
@@ -191,12 +201,15 @@
           {selectedSchema}.json
           <span class="text-text-tertiary font-normal">— {generatedData.length} rows</span>
         </span>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
           <button on:click={copyJson} class="text-[11px] text-text-secondary hover:text-accent-default transition-colors flex items-center gap-1 bg-bg-panel border border-border-subtle px-2.5 py-1.5 rounded-md">
-            <i class="ri-file-copy-line"></i> คัดลอก
+            <i class="ri-file-copy-line"></i> JSON
+          </button>
+          <button on:click={copyTsv} class="text-[11px] text-text-secondary hover:text-green-400 transition-colors flex items-center gap-1 bg-bg-panel border border-border-subtle px-2.5 py-1.5 rounded-md">
+            <i class="ri-table-line"></i> Excel/Sheet
           </button>
           <button on:click={downloadJson} class="text-[11px] text-text-secondary hover:text-accent-default transition-colors flex items-center gap-1 bg-bg-panel border border-border-subtle px-2.5 py-1.5 rounded-md">
-            <i class="ri-download-line"></i> ดาวน์โหลด .json
+            <i class="ri-download-line"></i> .json
           </button>
         </div>
       </div>
