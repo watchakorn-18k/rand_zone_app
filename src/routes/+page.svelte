@@ -79,6 +79,29 @@
   <meta name="twitter:title" content="Rand Zone — ระบบสุ่มกลุ่มและหมุนวงล้อออนไลน์ฟรี 100%" />
   <meta name="twitter:description" content="จัดการทีมและตัดสินใจได้ง่ายๆ ผ่านเว็บ ไม่มีโฆษณา รวดเร็ว โปร่งใสด้วย Cryptographic Fairness" />
 
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Rand Zone",
+      "operatingSystem": "Web Browser",
+      "applicationCategory": "UtilitiesApplication",
+      "description": "ระบบสุ่มและหมุนวงล้อไร้โฆษณา ทำงานบน Client-side 100% (Static) ปลอดภัยโปร่งใส 100% ด้วยคณิตศาสตร์ความน่าจะเป็นแบบเข้ารหัส (CSPRNG) และ Fisher-Yates",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "THB"
+      },
+      "featureList": [
+        "Cryptographic Randomness (CSPRNG)",
+        "Advanced Group Shuffler",
+        "Interactive Spin Wheel",
+        "Ad-free",
+        "Shareable links"
+      ]
+    }
+  </script>
+
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
