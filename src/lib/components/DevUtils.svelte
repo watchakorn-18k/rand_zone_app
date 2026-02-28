@@ -216,8 +216,8 @@
         </button>
       </div>
       <div class="p-6 pt-2">
-        <!-- Visual Preview for UI & Styling -->
-        {#if activeUtil.category === 'UI & Styling'}
+        <!-- Visual Preview for UI & Styling & Database -->
+        {#if activeUtil.category === 'UI & Styling' || activeUtil.category === 'Data & Database'}
           {@const id = activeUtil.id}
           <div class="mb-5 p-6 bg-bg-panel/40 border border-border-subtle rounded-2xl flex items-center justify-center min-h-[220px] relative overflow-hidden">
             <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
@@ -282,7 +282,7 @@
               <!-- 3. Modern Inputs -->
               {:else if id === 'ui-input'}
                 <div class="w-full max-w-[260px] p-4 bg-white/5 rounded-2xl border border-white/10">
-                  <label class="text-[9px] uppercase font-bold text-white/40 block mb-2 px-1">Field Label</label>
+                  <span class="text-[9px] uppercase font-bold text-white/40 block mb-2 px-1">Field Label</span>
                   <div class="flex items-center gap-2 group" style="{previewValue}">
                     <i class="ri-edit-2-line text-white/20 text-sm"></i>
                     <span class="text-xs text-white/20 select-none">Placeholder text...</span>
