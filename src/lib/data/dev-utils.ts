@@ -844,8 +844,14 @@ export const DEV_UTILS: DevUtil[] = [
 		name: 'Skeleton Loader Configสุ่ม',
 		category: 'UI & Styling',
 		icon: 'ri-loader-line',
-		generator: () =>
-			`@keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } } .skeleton { background: #e2e8f0; animation: shimmer 1.5s infinite; border-radius: ${randomInt(4, 12)}px; width: ${randomInt(40, 100)}%; height: ${randomInt(10, 40)}px; }`
+		generator: () => {
+			const modes = ['card', 'list', 'profile'];
+			const mode = randomItem(modes);
+			const radius = randomInt(0, 1) ? `${randomInt(4, 16)}px` : '9999px';
+			const speed = (randomInt(12, 25) / 10).toFixed(1);
+			const color = randomItem(['#f1f5f9', '#e2e8f0', '#cbd5e1', '#e5e7eb']);
+			return `/* Mode: ${mode} */\n.skeleton-item {\n  background: ${color};\n  border-radius: ${radius};\n  animation: shimmer ${speed}s infinite ease-in-out alternate;\n}`;
+		}
 	},
 	{
 		id: 'ui-badge',

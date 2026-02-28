@@ -51,7 +51,7 @@
       isGenerating = true;
       previewValue = targetValue;
       let iterations = 0;
-      const maxIterations = 8;
+      const maxIterations = 5;
       
       rollInterval = setInterval(() => {
         // Matrix Scramble Logic
@@ -71,9 +71,9 @@
         if (iterations >= maxIterations) {
           clearInterval(rollInterval);
           generatedValue = targetValue;
-          setTimeout(() => isGenerating = false, 200);
+          setTimeout(() => isGenerating = false, 50);
         }
-      }, 20);
+      }, 15);
     }
   }
 
@@ -111,37 +111,46 @@
 
 <div class="space-y-6">
   <section class="bg-bg-card border border-border-subtle rounded-2xl p-6 transition-colors hover:border-border-default">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center text-sm font-mono font-bold"><i class="ri-tools-line"></i></div>
-        <div>
-          <h2 class="text-lg font-bold text-text-primary">โคตรสุ่ม (200+)</h2>
-          <p class="text-text-tertiary text-[11px]">เลือกเครื่องมือเพื่อสุ่มข้อมูลและตรวจสอบก่อนคัดลอก</p>
+    <div class="space-y-6 mb-8">
+      <!-- Top Row: Title and Search -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center text-sm font-mono font-bold"><i class="ri-tools-line"></i></div>
+          <div>
+            <h2 class="text-lg font-bold text-text-primary">โคตรสุ่ม (200+)</h2>
+            <p class="text-text-tertiary text-[11px]">เลือกเครื่องมือที่ต้องการแล้วกด "สุ่ม" เพื่อเริ่ม</p>
+          </div>
         </div>
-      </div>
 
-      <div class="flex flex-wrap gap-2">
-        <div class="relative min-w-[200px]">
+        <div class="relative w-full md:w-[280px]">
           <i class="ri-search-line absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary text-sm"></i>
           <input 
             type="text" 
-            placeholder="ค้นหาชื่อหรือประเภท..." 
+            placeholder="ค้นหาเครื่องมือ..." 
             bind:value={searchQuery}
-            class="w-full bg-bg-panel border border-border-default rounded-xl text-xs py-2.5 pl-9 pr-4 outline-none focus:border-orange-500 transition-all"
+            class="w-full bg-bg-panel border border-border-default rounded-xl text-xs py-2.5 pl-9 pr-4 outline-none focus:border-orange-500 transition-all shadow-inner"
           />
         </div>
-        <select 
-          bind:value={selectedCategory}
-          class="bg-bg-panel border border-border-default rounded-xl text-xs px-3 py-2 outline-none focus:border-orange-500 text-text-secondary"
-        >
+      </div>
+
+      <!-- Categories Row -->
+      <div class="relative border-t border-border-subtle/50 pt-4">
+        <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1 px-1 scroll-smooth">
           {#each categories as cat}
-            <option value={cat}>{cat}</option>
+            <button 
+              on:click={() => selectedCategory = cat}
+              class="whitespace-nowrap px-4 py-2 rounded-xl text-[11px] font-bold transition-all border {selectedCategory === cat ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20' : 'bg-bg-panel border-border-default text-text-tertiary hover:border-text-tertiary'}"
+            >
+              {cat}
+            </button>
           {/each}
-        </select>
+        </div>
+        <!-- Fade edge for scroll indication -->
+        <div class="absolute right-0 top-4 bottom-1 w-12 bg-gradient-to-l from-bg-card via-bg-card/80 to-transparent pointer-events-none"></div>
       </div>
     </div>
 
-    <div class="max-h-[600px] overflow-y-auto pr-2 custom-scrollbar p-1 -mx-1">
+    <div class="pr-2 p-1 -mx-1">
       <div class="px-1 space-y-10">
         {#each sortedCategories as category}
           <div class="space-y-4">
@@ -215,13 +224,35 @@
               
               <!-- 1. Skeleton Loaders -->
               {#if id === 'ui-skeleton'}
-                <div class="w-full max-w-[240px] p-5 bg-white rounded-2xl shadow-xl flex flex-col gap-4">
-                  <div class="w-10 h-10 rounded-full bg-slate-200 anim-shimmer"></div>
-                  <div class="space-y-2">
-                    <div class="h-3 bg-slate-200 rounded anim-shimmer w-[70%]"></div>
-                    <div class="h-3 bg-slate-200 rounded anim-shimmer w-[40%]"></div>
-                  </div>
-                  <div class="h-16 bg-slate-200 rounded-xl anim-shimmer w-full"></div>
+                {@const mode = previewValue.match(/Mode:\s*(\w+)/)?.[1] || 'card'}
+                {@const itemStyle = previewValue.split('{\n')[1]?.split('\n}')[0] || ''}
+                
+                <div class="w-full max-w-[240px] p-5 bg-white rounded-2xl shadow-xl flex flex-col gap-4 transition-all duration-300">
+                  {#if mode === 'profile'}
+                    <div class="flex items-center gap-3">
+                      <div class="w-12 h-12 shrink-0 anim-skeleton" style="{itemStyle}"></div>
+                      <div class="flex-1 space-y-2">
+                        <div class="h-3 w-3/4 anim-skeleton" style="{itemStyle}"></div>
+                        <div class="h-3 w-1/2 anim-skeleton" style="{itemStyle}"></div>
+                      </div>
+                    </div>
+                  {:else if mode === 'list'}
+                    <div class="space-y-4">
+                      {#each [1, 2, 3] as i}
+                        <div class="flex items-center gap-3">
+                          <div class="w-2 h-2 rounded-full shrink-0 anim-skeleton" style="{itemStyle}"></div>
+                          <div class="h-2 flex-1 anim-skeleton" style="{itemStyle}"></div>
+                        </div>
+                      {/each}
+                    </div>
+                  {:else}
+                    <div class="w-10 h-10 anim-skeleton" style="{itemStyle}"></div>
+                    <div class="space-y-2">
+                      <div class="h-3 anim-skeleton w-[70%]" style="{itemStyle}"></div>
+                      <div class="h-3 anim-skeleton w-[40%]" style="{itemStyle}"></div>
+                    </div>
+                    <div class="h-16 anim-skeleton w-full" style="{itemStyle}"></div>
+                  {/if}
                 </div>
 
               <!-- 2. Badges -->
@@ -393,6 +424,14 @@
     animation: flyIn 0.2s ease-out;
   }
 
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
   .anim-preview-race {
     animation: preview-race 2.5s infinite ease-in-out;
     left: 4px;
@@ -410,5 +449,14 @@
   @keyframes preview-race {
     0%, 100% { left: 4px; }
     45%, 55% { left: calc(100% - 28px); }
+  }
+
+  .anim-skeleton {
+    animation: skeleton-shimmer 1.5s infinite ease-in-out alternate;
+  }
+
+  @keyframes skeleton-shimmer {
+    from { opacity: 0.4; }
+    to { opacity: 1; }
   }
 </style>

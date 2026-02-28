@@ -37,7 +37,7 @@
       btn?.classList.add('opacity-50', 'pointer-events-none');
       
       // small fast-flicker animation to make it look "computing"
-      const duration = 800;
+      const duration = 300;
       const startTime = performance.now();
       
       const animate = () => {

@@ -67,7 +67,7 @@
     btn?.classList.add('opacity-50', 'pointer-events-none');
 
     // flicker
-    const duration = 600;
+    const duration = 300;
     const startTime = performance.now();
     const animate = () => {
       if (performance.now() - startTime < duration) {
