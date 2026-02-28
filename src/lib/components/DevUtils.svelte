@@ -209,125 +209,133 @@
       <div class="p-6 pt-2">
         <!-- Visual Preview for UI & Styling -->
         {#if activeUtil.category === 'UI & Styling'}
+          {@const id = activeUtil.id}
           <div class="mb-5 p-6 bg-bg-panel/40 border border-border-subtle rounded-2xl flex items-center justify-center min-h-[220px] relative overflow-hidden">
             <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
-            
-            <div 
-              class="rounded-2xl transition-all duration-300 border border-white/10 flex items-center justify-center text-center overflow-hidden bg-bg-card shadow-2xl relative" 
-              style="{(() => {
-                let style = 'min-width: 140px; min-height: 140px; max-width: 380px; max-height: 200px;';
-                
-                // Tailwind Color Mapper
-                const twColors = {
-                  'blue': '#3b82f6', 'emerald': '#10b981', 'amber': '#f59e0b', 
-                  'rose': '#f43f5e', 'cyan': '#06b6d4', 'violet': '#8b5cf6',
-                  'indigo': '#6366f1', 'slate': '#64748b'
-                };
-                const twMatch = previewValue.match(/^(blue|emerald|amber|rose|cyan|violet|indigo|slate)-(\d00)$/);
+              
+              <!-- 1. Skeleton Loaders -->
+              {#if id === 'ui-skeleton'}
+                <div class="w-full max-w-[240px] p-5 bg-white rounded-2xl shadow-xl flex flex-col gap-4">
+                  <div class="w-10 h-10 rounded-full bg-slate-200 anim-shimmer"></div>
+                  <div class="space-y-2">
+                    <div class="h-3 bg-slate-200 rounded anim-shimmer w-[70%]"></div>
+                    <div class="h-3 bg-slate-200 rounded anim-shimmer w-[40%]"></div>
+                  </div>
+                  <div class="h-16 bg-slate-200 rounded-xl anim-shimmer w-full"></div>
+                </div>
 
-                if (previewValue.includes(':')) {
-                  style += previewValue;
-                  if (previewValue.includes('text-shadow')) style += '; background: white; color: transparent;';
-                  if (previewValue.includes('z-index')) style += '; background: var(--color-accent-default); color: white;';
-                  if (previewValue.includes('aspect-ratio')) style += '; width: 220px; height: auto; background: var(--color-accent-default);';
-                  if (previewValue.includes('grid-template-columns')) style += '; display: grid; width: 340px; height: auto; min-height: 140px; background: transparent; padding: 16px; border: 2px dashed rgba(255,255,255,0.1); box-shadow: none;';
-                  if (previewValue.includes('flex-') || previewValue.includes('justify-') || previewValue.includes('align-')) {
-                    const isWrap = previewValue.includes('wrap');
-                    style += `; display: flex; width: ${isWrap ? '220px' : '340px'}; height: ${isWrap ? 'auto' : '160px'}; min-height: 120px; background: transparent; padding: 12px; border: 2px dashed rgba(255,255,255,0.1); box-shadow: none;`;
-                  }
-                } 
-                else if (twMatch) {
-                    const color = twColors[twMatch[1]];
-                    style += `background-color: ${color}; width: 140px; height: 140px; filter: saturate(${parseInt(twMatch[2])/500});`;
-                }
-                else if (previewValue.startsWith('#') || previewValue.startsWith('rgb') || previewValue.startsWith('hsl')) {
-                  style += `background-color: ${previewValue}; width: 140px; height: 140px;`;
-                } 
-                else if (previewValue.includes('px') && previewValue.includes('rgba')) {
-                  style += `box-shadow: ${previewValue}; background: white; width: 140px; height: 140px;`;
-                } 
-                else if (previewValue.includes('gradient')) {
-                  style += `background: ${previewValue}; width: 260px; height: 140px;`;
-                } 
-                else if (previewValue.includes('sans-serif') || previewValue.includes('serif') || previewValue.includes('monospace')) {
-                  style += `font-family: ${previewValue}; background: white; color: #1f2937; padding: 30px; width: 280px;`;
-                }
-                else if (previewValue.includes('gap-')) {
-                   const gapVal = parseInt(previewValue.split('-')[1]) * 4;
-                   style += `gap: ${gapVal}px; display: flex; background: transparent; width: auto; height: auto; padding: 24px; border: none; shadow: none;`;
-                }
-                else if (previewValue.includes('%')) {
-                   style += `border-radius: ${previewValue}; background: var(--color-accent-default); width: 140px; height: 140px;`;
-                } else {
-                   style += 'width: 140px; height: 140px; background: var(--color-accent-default);';
-                }
-                
-                return style;
-              })()}"
-            >
-              <!-- Constant items that slide with CSS transitions instead of unmounting -->
-              {#if previewValue.includes('grid-') || previewValue.includes('flex-') || previewValue.includes('justify-') || previewValue.includes('align-') || previewValue.includes('gap-')}
-                {#each [1, 2, 3, 4, 5, 6] as i}
-                  {#if i <= (previewValue.includes('grid-') || previewValue.includes('wrap') ? 6 : (previewValue.includes('gap-') ? 2 : 3))}
+              <!-- 2. Badges -->
+              {:else if id === 'ui-badge'}
+                <div class="flex items-center justify-center p-4">
+                  <div class="shadow-sm" style="{previewValue}">
+                    <i class="ri-notification-3-line mr-1"></i> NEW
+                  </div>
+                </div>
+
+              <!-- 3. Modern Inputs -->
+              {:else if id === 'ui-input'}
+                <div class="w-full max-w-[260px] p-4 bg-white/5 rounded-2xl border border-white/10">
+                  <label class="text-[9px] uppercase font-bold text-white/40 block mb-2 px-1">Field Label</label>
+                  <div class="flex items-center gap-2 group" style="{previewValue}">
+                    <i class="ri-edit-2-line text-white/20 text-sm"></i>
+                    <span class="text-xs text-white/20 select-none">Placeholder text...</span>
+                  </div>
+                </div>
+
+              <!-- 4. Layout Demonstrations (Flex/Grid/Gap/Order) -->
+              {:else if id.includes('flex') || id.includes('grid') || id.includes('justify') || id.includes('align') || id.includes('gap') || id === 'ui-order'}
+                <div 
+                  class="rounded-xl p-4 transition-all duration-300 w-full h-full min-h-[160px]" 
+                  style="{previewValue.includes(':') ? previewValue : ''}; {id.includes('grid') ? 'display: grid;' : (id.includes('flex') || id.includes('justify') ? 'display: flex;' : '')}"
+                >
+                  {#each [1, 2, 3] as i}
                     <div 
-                      class="rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-md shrink-0 transition-all duration-300"
-                      style="width: {40 + (i * 8)}px; height: {40 + (i * 4)}px; background: {['#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4'][i - 1]}"
+                      class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold text-white shadow-lg shrink-0 transition-all duration-300"
+                      style="background: {['#3b82f6', '#10b981', '#f43f5e'][i - 1]}; {i === 2 && (id === 'ui-order' || id === 'ui-flex-grow' || id === 'ui-align-self') ? previewValue : ''}"
                     >
-                      {i}
+                      {i}{i === 2 && (id === 'ui-order' || id === 'ui-flex-grow' || id === 'ui-align-self') ? '*' : ''}
                     </div>
-                  {/if}
-                {/each}
-              {:else if previewValue.includes('font') || previewValue.includes('sans-serif') || previewValue.includes('serif') || previewValue.includes('monospace') || previewValue.includes('clamp')}
-                <div class="flex flex-col items-center transition-all duration-300">
-                  <span class="font-bold leading-none transition-all duration-300" style="{previewValue.includes('clamp') || previewValue.includes('font-size') ? previewValue : 'font-size: 2.5rem;'}">Aa</span>
-                  <span class="text-[9px] opacity-50 block mt-2 tracking-widest font-sans uppercase">Typography</span>
+                  {/each}
                 </div>
-              {:else if previewValue.includes('aspect-ratio')}
-                <div class="flex flex-col items-center text-white transition-all duration-300">
-                  <i class="ri-aspect-ratio-line text-3xl mb-1"></i>
-                  <span class="text-[10px] font-mono leading-none">{previewValue.split(': ')[1]}</span>
-                </div>
-              {:else if previewValue.includes('padding')}
-                <div class="w-full h-full bg-white/10 flex items-center justify-center p-2 transition-all duration-300">
-                  <div class="w-full h-full bg-white/40 border border-white/20 rounded-lg"></div>
-                </div>
-              {:else if previewValue.includes('delay')}
-                <div class="w-full flex flex-col gap-4 p-4 transition-all duration-300">
-                  <div class="flex flex-col gap-1">
-                    <div class="flex justify-between text-[8px] uppercase font-bold text-white/40 px-2">
-                      <span>Ref (0ms)</span>
-                    </div>
-                    <div class="h-8 bg-white/5 rounded-full relative overflow-hidden border border-white/5 mx-1">
-                      <div class="w-6 h-6 rounded-full bg-white/10 absolute top-1 anim-preview-race"></div>
-                    </div>
-                  </div>
-                  
-                  <div class="flex flex-col gap-1">
-                    <div class="flex justify-between text-[8px] uppercase font-bold text-orange-500 px-2">
-                      <span>Delayed ({previewValue.match(/\d+/)?.[0]}ms)</span>
-                    </div>
-                    <div class="h-8 bg-orange-500/10 rounded-full relative overflow-hidden border border-orange-500/10 mx-1">
-                      <div 
-                        class="w-6 h-6 rounded-full bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)] absolute top-1 anim-preview-race"
-                        style="animation-delay: {previewValue.match(/\d+/)?.[0]}ms"
-                      ></div>
-                    </div>
+
+              <!-- 5. Background Patterns -->
+              {:else if id === 'ui-bg-pattern'}
+                <div class="w-full h-full relative flex items-center justify-center transition-all duration-300" style="{previewValue}">
+                  <div class="bg-white p-4 rounded-xl shadow-2xl text-slate-800 font-bold text-[10px] uppercase tracking-widest border border-slate-100">
+                    Card Sample
                   </div>
                 </div>
-              {:else if previewValue.includes('z-index')}
-                <div class="flex flex-col items-center text-white transition-all duration-300">
-                  <i class="ri-layers-line text-3xl mb-1"></i>
-                  <span class="text-[10px] font-bold uppercase tracking-tighter">Z-Index: {previewValue.match(/\d+/)?.[0]}</span>
+
+              <!-- 6. Text Gradients -->
+              {:else if id === 'ui-text-grad' || id === 'ui-clamp' || id === 'ui-font' || id === 'ui-letter-spacing' || id === 'ui-line-height'}
+                <div class="flex flex-col items-center justify-center p-6 text-center">
+                  <h4 
+                    class="font-black leading-tight transition-all duration-300"
+                    style="{previewValue.includes(':') ? previewValue : 'font-size: 2.5rem;'}"
+                  >
+                    RANDOM
+                  </h4>
+                  <p 
+                    class="text-[10px] opacity-40 mt-3 max-w-[160px]"
+                    style="{id === 'ui-line-height' || id === 'ui-letter-spacing' ? previewValue : ''}"
+                  >
+                    The quick brown fox jumps over the lazy dog.
+                  </p>
                 </div>
-              {:else if previewValue.match(/^(blue|emerald|amber|rose|cyan|violet|indigo|slate)-(\d00)$/)}
-                <div class="text-white font-bold text-sm uppercase opacity-90 transition-all duration-300">{previewValue}</div>
+
+              <!-- 7. Image Filters -->
+              {:else if id === 'ui-filter'}
+                <div class="relative transition-all duration-300" style="{previewValue}">
+                  <div class="w-28 h-28 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <i class="ri-image-line text-4xl text-white/50"></i>
+                  </div>
+                  <div class="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg text-indigo-500">
+                    <i class="ri-magic-line text-sm"></i>
+                  </div>
+                </div>
+
+              <!-- 8. Standard Colors & Gradients -->
+              {:else if previewValue.startsWith('#') || previewValue.startsWith('rgb') || previewValue.startsWith('hsl') || previewValue.includes('gradient')}
+                <div 
+                  class="w-32 h-32 rounded-3xl shadow-2xl flex items-center justify-center border border-white/20 transition-all duration-300 relative overflow-hidden"
+                  style="background: {previewValue}"
+                >
+                   <div class="bg-black/20 backdrop-blur-sm p-2 rounded-lg text-[10px] text-white font-mono font-bold">
+                      {previewValue.startsWith('linear') ? 'GRADIENT' : previewValue.toUpperCase()}
+                   </div>
+                </div>
+
+              <!-- 9. Other Simple Props (Shadow, Radius, Aspect, Z, Delay) -->
+              {:else if id === 'ui-shadow' || id === 'ui-shadow-layered'}
+                <div class="w-32 h-32 bg-white rounded-2xl flex items-center justify-center transition-all duration-300" style="box-shadow: {previewValue}">
+                  <span class="text-slate-400 text-[10px] font-bold uppercase">Shadow</span>
+                </div>
+              {:else if id === 'ui-radius'}
+                <div class="w-32 h-32 bg-orange-500 shadow-xl transition-all duration-300" style="border-radius: {previewValue}"></div>
+              {:else if id === 'ui-aspect'}
+                <div class="bg-orange-500/20 border-2 border-orange-500 rounded-lg flex items-center justify-center transition-all duration-300" style="{previewValue}; width: 140px;">
+                  <span class="text-orange-500 font-bold text-[10px]">{previewValue.split(': ')[1]}</span>
+                </div>
+              {:else if id === 'ui-animate'}
+                 <!-- Standard Delay Preview -->
+                 <div class="w-full flex flex-col gap-4 p-4">
+                  <div class="h-8 bg-white/5 rounded-full relative overflow-hidden flex items-center px-1">
+                    <div class="w-6 h-6 rounded-full bg-white/10 absolute top-1 anim-preview-race"></div>
+                  </div>
+                  <div class="h-8 bg-orange-500/10 rounded-full relative overflow-hidden flex items-center px-1">
+                    <div 
+                      class="w-6 h-6 rounded-full bg-orange-500 absolute top-1 anim-preview-race"
+                      style="animation-delay: {previewValue.match(/\d+/)?.[0]}ms"
+                    ></div>
+                  </div>
+                  <span class="text-[9px] text-center font-bold text-orange-500">{previewValue.match(/\d+/)?.[0]}ms delay</span>
+                </div>
               {:else}
-                <div class="text-white opacity-40 text-xs font-mono transition-all duration-300 uppercase tracking-tighter">
-                   {previewValue.length > 15 ? 'UI Style' : previewValue}
+                <div class="text-white opacity-40 text-xs font-mono uppercase tracking-widest">
+                   {previewValue.length > 20 ? 'UI Preview' : previewValue}
                 </div>
               {/if}
-            </div>
-
+            
             <div class="absolute bottom-2 right-2 text-[10px] font-mono text-text-tertiary bg-bg-panel/80 px-1.5 py-0.5 rounded border border-border-subtle">
               #visual_preview
             </div>

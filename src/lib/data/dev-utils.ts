@@ -817,6 +817,91 @@ export const DEV_UTILS: DevUtil[] = [
 		generator: () =>
 			`align-items: ${randomItem(['flex-start', 'flex-end', 'center', 'baseline', 'stretch'])};`
 	},
+	{
+		id: 'ui-align-self',
+		name: 'Align Self (Individual)สุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-align-bottom',
+		generator: () =>
+			`align-self: ${randomItem(['auto', 'flex-start', 'flex-end', 'center', 'baseline', 'stretch'])};`
+	},
+	{
+		id: 'ui-flex-grow',
+		name: 'Flex Growสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-expand-left-right-line',
+		generator: () => `flex-grow: ${randomItem(['0', '1', '2', '3'])};`
+	},
+	{
+		id: 'ui-order',
+		name: 'Flex/Grid Orderสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-sort-desc',
+		generator: () => `order: ${randomInt(-1, 5)};`
+	},
+	{
+		id: 'ui-skeleton',
+		name: 'Skeleton Loader Configสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-loader-line',
+		generator: () =>
+			`@keyframes shimmer { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } } .skeleton { background: #e2e8f0; animation: shimmer 1.5s infinite; border-radius: ${randomInt(4, 12)}px; width: ${randomInt(40, 100)}%; height: ${randomInt(10, 40)}px; }`
+	},
+	{
+		id: 'ui-badge',
+		name: 'Modern Badge Styleสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-notification-3-line',
+		generator: () =>
+			`display: inline-flex; items-center; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; background: #${randomHex(6)}20; color: #${randomHex(6)}; border: 1px solid currentColor;`
+	},
+	{
+		id: 'ui-input',
+		name: 'Modern Input Styleสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-input-cursor-move',
+		generator: () =>
+			`background: transparent; border: ${randomInt(1, 2)}px solid #${randomHex(6)}; border-radius: ${randomInt(8, 16)}px; padding: 10px 15px; outline: none; transition: border-color 0.2s;`
+	},
+	{
+		id: 'ui-text-grad',
+		name: 'Text Gradient Effectสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-text-color',
+		generator: () =>
+			`background: linear-gradient(${randomInt(0, 360)}deg, #${randomHex(6)}, #${randomHex(6)}); -webkit-background-clip: text; color: transparent;`
+	},
+	{
+		id: 'ui-bg-pattern',
+		name: 'Background Patternสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-layout-grid-line',
+		generator: () =>
+			`background-image: radial-gradient(#${randomHex(6)} 0.5px, transparent 0.5px); background-size: ${randomInt(10, 30)}px ${randomInt(10, 30)}px;`
+	},
+	{
+		id: 'ui-filter',
+		name: 'Modern Image Filterสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-image-edit-line',
+		generator: () =>
+			`filter: blur(${randomInt(0, 5)}px) saturate(${randomInt(50, 200)}%) contrast(${randomInt(80, 120)}%) grayscale(${randomInt(0, 100)}%);`
+	},
+	{
+		id: 'ui-letter-spacing',
+		name: 'Letter Spacingสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-text-spacing',
+		generator: () =>
+			`letter-spacing: ${randomItem(['-0.05em', '-0.02em', '0', '0.05em', '0.1em', '0.25em'])};`
+	},
+	{
+		id: 'ui-line-height',
+		name: 'Line Heightสุ่ม',
+		category: 'UI & Styling',
+		icon: 'ri-menu-5-line',
+		generator: () => `line-height: ${randomItem(['1', '1.25', '1.5', '1.625', '2'])};`
+	},
 
 	// --- QA & Testing (🧪 เคสประหลาด) ---
 	{
