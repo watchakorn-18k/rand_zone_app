@@ -158,20 +158,43 @@
       </button>
       {#if showApiInfo}
       <div class="mt-2 p-5 bg-bg-panel border border-border-subtle rounded-xl space-y-4 anim-result">
-        <p class="text-[13px] text-text-secondary leading-relaxed">เมื่อ deploy แล้ว สามารถ GET ข้อมูล mock ได้จาก URL ด้านล่าง:</p>
+        <p class="text-[13px] text-text-secondary leading-relaxed">รองรับทั้ง <span class="text-accent-default font-bold">{MOCK_SCHEMAS.length} ประเภทข้อมูล</span> (ไฟล์ละ 500 rows) สามารถใช้งานผ่าน URL:</p>
         
-        <div class="space-y-2">
-          {#each [
-            { path: '/api/v1/mock/users', desc: '500 users' },
-            { path: '/api/v1/mock/products', desc: '500 products' },
-            { path: '/api/v1/mock/orders', desc: '500 orders' }
-          ] as ep}
-          <div class="flex items-center gap-3 bg-bg-card border border-border-subtle rounded-lg px-4 py-2.5">
-            <span class="text-[10px] font-mono bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded">GET</span>
-            <code class="text-[12px] font-mono text-text-primary flex-1">{ep.path}</code>
-            <span class="text-[11px] text-text-tertiary">{ep.desc}</span>
+        <div class="space-y-3">
+          <!-- Current Selected -->
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider ml-1">ข้อมูลที่เลือกอยู่ตอนนี้</label>
+            <div class="flex items-center gap-2 bg-bg-card border border-accent-default/30 rounded-lg px-4 py-3 shadow-inner">
+              <span class="text-[10px] font-mono bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">GET</span>
+              <code class="text-[12px] font-mono text-text-primary flex-1 break-all">/api/v1/mock/{selectedSchema}</code>
+              <button 
+                on:click={() => {
+                  const url = `${window.location.origin}/api/v1/mock/${selectedSchema}`;
+                  navigator.clipboard.writeText(url).then(() => showToast('คัดลอก URL API แล้ว'));
+                }}
+                class="px-2 py-1 text-text-tertiary hover:text-accent-default transition-colors"
+                title="คัดลอก URL แบบเต็ม"
+              >
+                <i class="ri-file-copy-line text-sm"></i>
+              </button>
+            </div>
           </div>
-          {/each}
+
+          <!-- Examples -->
+          <div class="space-y-1.5 pt-1">
+            <label class="text-[10px] font-semibold text-text-tertiary uppercase tracking-wider ml-1">ตัวอย่างอื่นๆ</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {#each ['users', 'products', 'bank_accounts', 'game_characters'].filter(k => k !== selectedSchema).slice(0, 3) as k}
+              <div class="flex items-center gap-2 bg-bg-card/50 border border-border-subtle rounded-lg px-3 py-2 text-[11px]">
+                 <span class="text-green-400 font-mono text-[9px]">GET</span>
+                 <code class="text-text-secondary font-mono flex-1">.../{k}</code>
+              </div>
+              {/each}
+              <div class="flex items-center justify-center border border-dashed border-border-subtle rounded-lg px-3 py-2 text-[10px] text-text-tertiary">
+                และอีกกว่า 90 ประเภท...
+              </div>
+            </div>
+          </div>
         </div>
         
         <div class="bg-bg-card border border-border-subtle rounded-lg p-3 text-xs text-text-tertiary flex gap-2">

@@ -11,6 +11,7 @@
   import SecretGenerator from '$lib/components/SecretGenerator.svelte';
   import ColorGenerator from '$lib/components/ColorGenerator.svelte';
   import LoremGenerator from '$lib/components/LoremGenerator.svelte';
+  import DevUtils from '$lib/components/DevUtils.svelte';
 
   let groupShufflerCmp: GroupShuffler;
   let spinWheelCmp: SpinWheel;
@@ -22,10 +23,11 @@
   let secretGeneratorCmp: SecretGenerator;
   let colorGeneratorCmp: ColorGenerator;
   let loremGeneratorCmp: LoremGenerator;
+  let devUtilsCmp: DevUtils;
   
-  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' | 'secrets' | 'colors' | 'lorem' = 'groups';
+  let currentTab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' | 'secrets' | 'colors' | 'lorem' | 'utils' = 'groups';
 
-  function switchMain(tab: 'groups' | 'wheel' | 'number' | 'uuid' | 'snowflake' | 'password' | 'mockapi' | 'secrets' | 'colors' | 'lorem') {
+  function switchMain(tab: typeof currentTab) {
     currentTab = tab;
     const url = new URL(window.location.href);
     url.searchParams.set('tab', tab);
@@ -44,6 +46,7 @@
       const secretState = secretGeneratorCmp?.getState() || {};
       const colorState = colorGeneratorCmp?.getState() || {};
       const loremState = loremGeneratorCmp?.getState() || {};
+      const utilsState = devUtilsCmp?.getState() || {};
       
       const payload = {
         n: gState.n,
@@ -59,6 +62,7 @@
         sec: secretState,
         color: colorState,
         lorem: loremState,
+        utils: utilsState,
         t: currentTab
       };
       
@@ -94,6 +98,7 @@
         if (secretGeneratorCmp && decoded.sec) secretGeneratorCmp.setState(decoded.sec);
         if (colorGeneratorCmp && decoded.color) colorGeneratorCmp.setState(decoded.color);
         if (loremGeneratorCmp && decoded.lorem) loremGeneratorCmp.setState(decoded.lorem);
+        if (devUtilsCmp && decoded.utils) devUtilsCmp.setState(decoded.utils);
         if (decoded.t) switchMain(decoded.t);
 
         showToast('โหลดข้อมูลจากลิงก์สำเร็จ');
@@ -103,7 +108,7 @@
       }
     } else {
       const savedTab = urlParams.get('tab');
-      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password', 'mockapi', 'secrets', 'colors', 'lorem'] as const;
+      const validTabs = ['groups', 'wheel', 'number', 'uuid', 'snowflake', 'password', 'mockapi', 'secrets', 'colors', 'lorem', 'utils'] as const;
       if (savedTab && validTabs.includes(savedTab as any)) {
         currentTab = savedTab as typeof currentTab;
       }
@@ -114,7 +119,7 @@
 <svelte:head>
   <title>Rand Zone — ระบบสุ่มกลุ่ม สุ่มตัวเลข และ UUID ไร้โฆษณา</title>
   <meta name="description" content="Rand Zone แอปเครื่องมือสุ่มกลุ่ม จัดกลุ่ม หมุนวงล้อ สุ่มตัวเลข และสุ่ม UUID (v4/v7) ออนไลน์ฟรี ไม่มีโฆษณากวนใจ ปลอดภัยโปร่งใส 100% ด้วย CSPRNG" />
-  <meta name="keywords" content="สุ่มกลุ่ม, สุ่มชื่อ, จับฉลาก, หมุนวงล้อ, สุ่มตัวเลข, สุ่ม uuid, uuid v4, uuid v7, random number generator, แบ่งกลุ่ม" />
+  <meta name="keywords" content="สุ่มกลุ่ม, สุ่มชื่อ, จับฉลาก, หมุนวงล้อ, สุ่มตัวเลข, สุ่ม uuid, uuid v4, uuid v7, random number generator, แบ่งกลุ่ม, dev tools, utils" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Rand Zone Tool" />
   <meta name="theme-color" content="#3b82f6" />
@@ -149,6 +154,7 @@
         "UUID Generator (v7 / v4 / v1 / v6)",
         "Advanced Password & Secret/Hash Generator",
         "Mock API Data Generator",
+        "Dev Utils (200+ Tools)",
         "Ad-free",
         "Shareable links"
       ]
@@ -159,7 +165,7 @@
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 </svelte:head>
 
-<div class="max-w-[900px] mx-auto px-5 pt-6 pb-16 relative z-10">
+<div class="max-w-[1200px] mx-auto px-5 pt-6 pb-16 relative z-10">
   <header class="text-center pt-10 pb-8 relative">
     <div class="absolute top-2 left-0 sm:left-2 z-20">
       <a 
@@ -205,34 +211,37 @@
   <div class="overflow-x-auto -mx-1 px-1 mb-6">
     <div class="inline-flex min-w-full bg-bg-card border border-border-subtle rounded-xl p-1.5 gap-1">
       <button data-testid="mainTab1" on:click={() => switchMain('groups')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'groups' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-group-line"></i> จับกลุ่ม
+        <i class="ri-group-line"></i> จัดทีมสายลุย
       </button>
       <button data-testid="mainTab2" on:click={() => switchMain('wheel')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'wheel' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-donut-chart-line"></i> Wheel
+        <i class="ri-donut-chart-line"></i> วงล้อพิชิต
       </button>
       <button data-testid="mainTab3" on:click={() => switchMain('number')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'number' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-numbers-line"></i> ตัวเลข
+        <i class="ri-numbers-line"></i> สุ่มเลขเด็ด
       </button>
       <button data-testid="mainTab4" on:click={() => switchMain('uuid')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'uuid' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-fingerprint-line"></i> UUID
+        <i class="ri-fingerprint-line"></i> ID เทพ (UUID)
       </button>
       <button data-testid="mainTab5" on:click={() => switchMain('snowflake')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'snowflake' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-snowflake-line"></i> Snowflake
+        <i class="ri-snowflake-line"></i> หิมะสุ่ม (Snowflake)
       </button>
       <button data-testid="mainTab6" on:click={() => switchMain('password')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'password' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-lock-password-line"></i> รหัสผ่าน
+        <i class="ri-lock-password-line"></i> รหัสแกร่ง
       </button>
       <button data-testid="mainTab7" on:click={() => switchMain('mockapi')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'mockapi' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-code-s-slash-line"></i> Mock API
+        <i class="ri-code-s-slash-line"></i> Mock ทิพย์
       </button>
       <button data-testid="mainTab8" on:click={() => switchMain('secrets')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'secrets' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-key-2-line"></i> Secrets
+        <i class="ri-key-2-line"></i> คีย์มหาอุด
       </button>
       <button data-testid="mainTab9" on:click={() => switchMain('colors')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'colors' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-palette-line"></i> Colors
+        <i class="ri-palette-line"></i> แต้มสีใหม่
       </button>
       <button data-testid="mainTab10" on:click={() => switchMain('lorem')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'lorem' ? 'bg-accent-default text-white' : 'text-text-secondary hover:text-text-primary'}">
-        <i class="ri-text-snippet"></i> Lorem
+        <i class="ri-text-snippet"></i> บทความบ้าคลั่ง
+      </button>
+      <button data-testid="mainTab11" on:click={() => switchMain('utils')} class="py-3 px-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-1 whitespace-nowrap {currentTab === 'utils' ? 'bg-orange-500 text-white' : 'text-text-secondary hover:text-orange-500'}">
+        <i class="ri-tools-line"></i> โคตรสุ่ม
       </button>
     </div>
   </div>
@@ -266,6 +275,9 @@
   </div>
   <div class={currentTab === 'lorem' ? 'block' : 'hidden'}>
     <LoremGenerator bind:this={loremGeneratorCmp} />
+  </div>
+  <div class={currentTab === 'utils' ? 'block' : 'hidden'}>
+    <DevUtils bind:this={devUtilsCmp} />
   </div>
 
 </div>
