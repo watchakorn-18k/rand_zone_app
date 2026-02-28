@@ -1,11 +1,16 @@
 <script lang="ts">
   import { DEV_UTILS, type DevUtil } from '$lib/data/dev-utils';
   import { showToast } from '$lib/utils/toast';
+  import { fade, scale, fly } from 'svelte/transition';
+  import { backOut, elasticOut } from 'svelte/easing';
+  import { flip } from 'svelte/animate';
 
   let searchQuery = '';
   let selectedCategory = 'All';
   let activeUtil: DevUtil | null = null;
   let generatedValue = '';
+  let previewValue = '';
+  let isGenerating = false;
 
   const categories = ['All', ...new Set(DEV_UTILS.map(u => u.category))];
 
@@ -29,9 +34,46 @@
     generate();
   }
 
+  const matrixChars = '0123456789ABCDEFHIJKLMNOPQRSTUVWXYZ$+-*/=%<>[]{}@#&_?';
+  let rollInterval: any;
+  
   function generate() {
     if (activeUtil) {
-      generatedValue = activeUtil.generator();
+      if (rollInterval) clearInterval(rollInterval);
+      
+      let targetValue = '';
+      try {
+        targetValue = activeUtil.generator();
+      } catch (e) {
+        targetValue = 'เกิดข้อผิดพลาด';
+      }
+
+      isGenerating = true;
+      previewValue = targetValue;
+      let iterations = 0;
+      const maxIterations = 8;
+      
+      rollInterval = setInterval(() => {
+        // Matrix Scramble Logic
+        generatedValue = targetValue
+          .split('')
+          .map((char, index) => {
+            if (char === ' ' || char === '\n' || char === '\t') return char;
+            if (iterations / maxIterations > (index / targetValue.length) + Math.random() * 0.1) {
+               return char;
+            }
+            return matrixChars[Math.floor(Math.random() * matrixChars.length)];
+          })
+          .join('');
+
+        iterations++;
+        
+        if (iterations >= maxIterations) {
+          clearInterval(rollInterval);
+          generatedValue = targetValue;
+          setTimeout(() => isGenerating = false, 200);
+        }
+      }, 20);
     }
   }
 
@@ -46,6 +88,7 @@
   function closeModal() {
     activeUtil = null;
     generatedValue = '';
+    previewValue = '';
   }
 
   function handleKeydown(e: KeyboardEvent) {
@@ -148,8 +191,9 @@
   <div 
     class="fixed inset-0 z-[100] flex items-center justify-center px-4 backdrop-blur-sm bg-black/40 anim-fade-in"
     on:click|self={closeModal}
+    role="presentation"
   >
-    <div class="bg-bg-card border border-border-default w-full max-w-md rounded-3xl shadow-2xl overflow-hidden anim-scale-in">
+    <div class="bg-bg-card border border-border-default w-full max-w-md rounded-3xl shadow-2xl overflow-hidden anim-fly-in" role="dialog" aria-modal="true">
       <div class="p-6 border-b border-border-subtle flex items-center justify-between bg-bg-panel/30">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-xl"><i class="{activeUtil.icon}"></i></div>
@@ -158,43 +202,159 @@
             <span class="text-[10px] uppercase tracking-wider text-text-tertiary font-bold">{activeUtil.category}</span>
           </div>
         </div>
-        <button on:click={closeModal} class="w-8 h-8 rounded-full hover:bg-bg-hover flex items-center justify-center text-text-tertiary transition-colors">
+        <button on:click={closeModal} class="w-8 h-8 rounded-full hover:bg-bg-hover flex items-center justify-center text-text-tertiary transition-colors" aria-label="ปิด">
           <i class="ri-close-line text-xl"></i>
         </button>
       </div>
+      <div class="p-6 pt-2">
+        <!-- Visual Preview for UI & Styling -->
+        {#if activeUtil.category === 'UI & Styling'}
+          <div class="mb-5 p-6 bg-bg-panel/40 border border-border-subtle rounded-2xl flex items-center justify-center min-h-[220px] relative overflow-hidden">
+            <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
+            
+            <div 
+              class="rounded-2xl transition-all duration-300 border border-white/10 flex items-center justify-center text-center overflow-hidden bg-bg-card shadow-2xl relative" 
+              style="{(() => {
+                let style = 'min-width: 140px; min-height: 140px; max-width: 380px; max-height: 200px;';
+                
+                // Tailwind Color Mapper
+                const twColors = {
+                  'blue': '#3b82f6', 'emerald': '#10b981', 'amber': '#f59e0b', 
+                  'rose': '#f43f5e', 'cyan': '#06b6d4', 'violet': '#8b5cf6',
+                  'indigo': '#6366f1', 'slate': '#64748b'
+                };
+                const twMatch = previewValue.match(/^(blue|emerald|amber|rose|cyan|violet|indigo|slate)-(\d00)$/);
 
-      <div class="p-6 space-y-6">
-        <div>
-          <label class="block text-xs font-bold text-text-tertiary uppercase tracking-widest mb-3" for="utilPreview">Preview ข้อมูล</label>
-          <div class="relative group">
-            <textarea 
-              id="utilPreview"
-              readonly
-              class="w-full bg-bg-panel border-2 border-border-default rounded-2xl p-4 font-mono text-sm text-accent-default focus:border-orange-500 outline-none min-h-[120px] resize-none leading-relaxed"
-              bind:value={generatedValue}
-            ></textarea>
-            <button 
-              on:click={copy}
-              class="absolute right-3 bottom-3 px-3 py-1.5 bg-accent-default/10 text-accent-default hover:bg-accent-default hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                if (previewValue.includes(':')) {
+                  style += previewValue;
+                  if (previewValue.includes('text-shadow')) style += '; background: white; color: transparent;';
+                  if (previewValue.includes('z-index')) style += '; background: var(--color-accent-default); color: white;';
+                  if (previewValue.includes('aspect-ratio')) style += '; width: 220px; height: auto; background: var(--color-accent-default);';
+                  if (previewValue.includes('grid-template-columns')) style += '; display: grid; width: 340px; height: auto; min-height: 140px; background: transparent; padding: 16px; border: 2px dashed rgba(255,255,255,0.1); box-shadow: none;';
+                  if (previewValue.includes('flex-') || previewValue.includes('justify-') || previewValue.includes('align-')) {
+                    const isWrap = previewValue.includes('wrap');
+                    style += `; display: flex; width: ${isWrap ? '220px' : '340px'}; height: ${isWrap ? 'auto' : '160px'}; min-height: 120px; background: transparent; padding: 12px; border: 2px dashed rgba(255,255,255,0.1); box-shadow: none;`;
+                  }
+                } 
+                else if (twMatch) {
+                    const color = twColors[twMatch[1]];
+                    style += `background-color: ${color}; width: 140px; height: 140px; filter: saturate(${parseInt(twMatch[2])/500});`;
+                }
+                else if (previewValue.startsWith('#') || previewValue.startsWith('rgb') || previewValue.startsWith('hsl')) {
+                  style += `background-color: ${previewValue}; width: 140px; height: 140px;`;
+                } 
+                else if (previewValue.includes('px') && previewValue.includes('rgba')) {
+                  style += `box-shadow: ${previewValue}; background: white; width: 140px; height: 140px;`;
+                } 
+                else if (previewValue.includes('gradient')) {
+                  style += `background: ${previewValue}; width: 260px; height: 140px;`;
+                } 
+                else if (previewValue.includes('sans-serif') || previewValue.includes('serif') || previewValue.includes('monospace')) {
+                  style += `font-family: ${previewValue}; background: white; color: #1f2937; padding: 30px; width: 280px;`;
+                }
+                else if (previewValue.includes('gap-')) {
+                   const gapVal = parseInt(previewValue.split('-')[1]) * 4;
+                   style += `gap: ${gapVal}px; display: flex; background: transparent; width: auto; height: auto; padding: 24px; border: none; shadow: none;`;
+                }
+                else if (previewValue.includes('%')) {
+                   style += `border-radius: ${previewValue}; background: var(--color-accent-default); width: 140px; height: 140px;`;
+                } else {
+                   style += 'width: 140px; height: 140px; background: var(--color-accent-default);';
+                }
+                
+                return style;
+              })()}"
             >
-              <i class="ri-file-copy-line"></i> คัดลอก
+              <!-- Constant items that slide with CSS transitions instead of unmounting -->
+              {#if previewValue.includes('grid-') || previewValue.includes('flex-') || previewValue.includes('justify-') || previewValue.includes('align-') || previewValue.includes('gap-')}
+                {#each [1, 2, 3, 4, 5, 6] as i}
+                  {#if i <= (previewValue.includes('grid-') || previewValue.includes('wrap') ? 6 : (previewValue.includes('gap-') ? 2 : 3))}
+                    <div 
+                      class="rounded-xl flex items-center justify-center text-xs font-bold text-white shadow-md shrink-0 transition-all duration-300"
+                      style="width: {40 + (i * 8)}px; height: {40 + (i * 4)}px; background: {['#3b82f6', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6', '#06b6d4'][i - 1]}"
+                    >
+                      {i}
+                    </div>
+                  {/if}
+                {/each}
+              {:else if previewValue.includes('font') || previewValue.includes('sans-serif') || previewValue.includes('serif') || previewValue.includes('monospace') || previewValue.includes('clamp')}
+                <div class="flex flex-col items-center transition-all duration-300">
+                  <span class="font-bold leading-none transition-all duration-300" style="{previewValue.includes('clamp') || previewValue.includes('font-size') ? previewValue : 'font-size: 2.5rem;'}">Aa</span>
+                  <span class="text-[9px] opacity-50 block mt-2 tracking-widest font-sans uppercase">Typography</span>
+                </div>
+              {:else if previewValue.includes('aspect-ratio')}
+                <div class="flex flex-col items-center text-white transition-all duration-300">
+                  <i class="ri-aspect-ratio-line text-3xl mb-1"></i>
+                  <span class="text-[10px] font-mono leading-none">{previewValue.split(': ')[1]}</span>
+                </div>
+              {:else if previewValue.includes('padding')}
+                <div class="w-full h-full bg-white/10 flex items-center justify-center p-2 transition-all duration-300">
+                  <div class="w-full h-full bg-white/40 border border-white/20 rounded-lg"></div>
+                </div>
+              {:else if previewValue.includes('delay')}
+                <div class="flex flex-col items-center text-white transition-all duration-300">
+                  <div class="relative w-10 h-10 mb-2">
+                    <i class="ri-loader-4-line text-3xl absolute inset-0 flex items-center justify-center animate-spin"></i>
+                    <i class="ri-timer-line text-sm absolute inset-0 flex items-center justify-center"></i>
+                  </div>
+                  <span class="text-[11px] font-bold">Delay: {previewValue.match(/\d+/)?.[0]}ms</span>
+                </div>
+              {:else if previewValue.includes('z-index')}
+                <div class="flex flex-col items-center text-white transition-all duration-300">
+                  <i class="ri-layers-line text-3xl mb-1"></i>
+                  <span class="text-[10px] font-bold uppercase tracking-tighter">Z-Index: {previewValue.match(/\d+/)?.[0]}</span>
+                </div>
+              {:else if previewValue.match(/^(blue|emerald|amber|rose|cyan|violet|indigo|slate)-(\d00)$/)}
+                <div class="text-white font-bold text-sm uppercase opacity-90 transition-all duration-300">{previewValue}</div>
+              {:else}
+                <div class="text-white opacity-40 text-xs font-mono transition-all duration-300 uppercase tracking-tighter">
+                   {previewValue.length > 15 ? 'UI Style' : previewValue}
+                </div>
+              {/if}
+            </div>
+
+            <div class="absolute bottom-2 right-2 text-[10px] font-mono text-text-tertiary bg-bg-panel/80 px-1.5 py-0.5 rounded border border-border-subtle">
+              #visual_preview
+            </div>
+          </div>
+        {/if}
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label for="util-preview" class="text-[11px] font-bold text-text-tertiary uppercase tracking-wider">Preview ข้อมูล</label>
+            </div>
+            <div class="relative group">
+              <textarea 
+                id="util-preview"
+                readonly
+                class="w-full bg-bg-panel border-2 border-border-default rounded-2xl p-4 font-mono text-sm text-accent-default focus:border-orange-500 outline-none min-h-[120px] resize-none leading-relaxed"
+                bind:value={generatedValue}
+              ></textarea>
+              <button 
+                on:click={copy}
+                class="absolute right-3 bottom-3 px-3 py-1.5 bg-accent-default/10 text-accent-default hover:bg-accent-default hover:text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
+                aria-label="คัดลอกข้อมูล"
+              >
+                <i class="ri-file-copy-line"></i> คัดลอก
+              </button>
+            </div>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button 
+              on:click={generate}
+              class="flex-1 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
+            >
+              <i class="ri-refresh-line"></i> สุ่มใหม่
+            </button>
+            <button 
+              on:click={closeModal}
+              class="px-6 bg-bg-panel border border-border-default hover:bg-bg-hover text-text-secondary font-bold py-3.5 rounded-2xl transition-all"
+            >
+              ปิด
             </button>
           </div>
-        </div>
-
-        <div class="flex gap-3">
-          <button 
-            on:click={generate}
-            class="flex-1 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
-          >
-            <i class="ri-refresh-line"></i> สุ่มใหม่
-          </button>
-          <button 
-            on:click={closeModal}
-            class="px-6 bg-bg-panel border border-border-default hover:bg-bg-hover text-text-secondary font-bold py-3.5 rounded-2xl transition-all"
-          >
-            ปิด
-          </button>
         </div>
       </div>
     </div>
@@ -206,19 +366,18 @@
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background-color: var(--color-border-subtle); border-radius: 20px; }
 
-  .anim-fade-in {
-    animation: fadeIn 0.15s ease-out;
-  }
-  .anim-scale-in {
-    animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  .anim-fly-in {
+    animation: flyIn 0.2s ease-out;
   }
 
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  @keyframes scaleIn {
-    from { transform: scale(0.95); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
+  @keyframes flyIn {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
+
+
 </style>
