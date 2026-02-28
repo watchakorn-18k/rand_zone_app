@@ -10,6 +10,10 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
+			devOptions: {
+				enabled: true,
+				type: 'module'
+			},
 			manifest: {
 				name: 'Rand Zone',
 				short_name: 'RandZone',

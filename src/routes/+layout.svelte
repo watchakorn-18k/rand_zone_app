@@ -2,6 +2,7 @@
 	import './layout.css';
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
+	// @ts-ignore - virtual module handled by vite-plugin-pwa
 	import { pwaInfo } from 'virtual:pwa-info';
 
 	let { children } = $props();

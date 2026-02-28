@@ -222,8 +222,24 @@
           <div class="mb-5 p-6 bg-bg-panel/40 border border-border-subtle rounded-2xl flex items-center justify-center min-h-[220px] relative overflow-hidden">
             <div class="absolute inset-0 opacity-[0.05] pointer-events-none" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 24px 24px;"></div>
               
+              <!-- 0. Data & Database Terminal -->
+              {#if activeUtil.category === 'Data & Database'}
+                <div class="w-full max-w-[320px] bg-[#1e1e1e] rounded-xl border border-white/10 shadow-2xl overflow-hidden font-mono text-[11px] anim-fade-in">
+                  <div class="bg-white/5 px-3 py-1.5 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex gap-1.5">
+                      <div class="w-2.5 h-2.5 rounded-full bg-red-500/50"></div>
+                      <div class="w-2.5 h-2.5 rounded-full bg-yellow-500/50"></div>
+                      <div class="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
+                    </div>
+                    <span class="text-white/40 text-[9px] uppercase tracking-widest">{activeUtil.id.split('-')[1]} Console</span>
+                  </div>
+                  <div class="p-4 text-emerald-400 min-h-[120px] flex items-center">
+                    <code class="break-all whitespace-pre-wrap">{previewValue}</code>
+                  </div>
+                </div>
+
               <!-- 1. Skeleton Loaders -->
-              {#if id === 'ui-skeleton'}
+              {:else if id === 'ui-skeleton'}
                 {@const mode = previewValue.match(/Mode:\s*(\w+)/)?.[1] || 'card'}
                 {@const itemStyle = previewValue.split('{\n')[1]?.split('\n}')[0] || ''}
                 
