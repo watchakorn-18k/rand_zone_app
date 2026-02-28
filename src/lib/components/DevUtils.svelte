@@ -292,12 +292,27 @@
                   <div class="w-full h-full bg-white/40 border border-white/20 rounded-lg"></div>
                 </div>
               {:else if previewValue.includes('delay')}
-                <div class="flex flex-col items-center text-white transition-all duration-300">
-                  <div class="relative w-10 h-10 mb-2">
-                    <i class="ri-loader-4-line text-3xl absolute inset-0 flex items-center justify-center animate-spin"></i>
-                    <i class="ri-timer-line text-sm absolute inset-0 flex items-center justify-center"></i>
+                <div class="w-full flex flex-col gap-4 p-4 transition-all duration-300">
+                  <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[8px] uppercase font-bold text-white/40 px-2">
+                      <span>Ref (0ms)</span>
+                    </div>
+                    <div class="h-8 bg-white/5 rounded-full relative overflow-hidden border border-white/5 mx-1">
+                      <div class="w-6 h-6 rounded-full bg-white/10 absolute top-1 anim-preview-race"></div>
+                    </div>
                   </div>
-                  <span class="text-[11px] font-bold">Delay: {previewValue.match(/\d+/)?.[0]}ms</span>
+                  
+                  <div class="flex flex-col gap-1">
+                    <div class="flex justify-between text-[8px] uppercase font-bold text-orange-500 px-2">
+                      <span>Delayed ({previewValue.match(/\d+/)?.[0]}ms)</span>
+                    </div>
+                    <div class="h-8 bg-orange-500/10 rounded-full relative overflow-hidden border border-orange-500/10 mx-1">
+                      <div 
+                        class="w-6 h-6 rounded-full bg-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.6)] absolute top-1 anim-preview-race"
+                        style="animation-delay: {previewValue.match(/\d+/)?.[0]}ms"
+                      ></div>
+                    </div>
+                  </div>
                 </div>
               {:else if previewValue.includes('z-index')}
                 <div class="flex flex-col items-center text-white transition-all duration-300">
@@ -370,6 +385,11 @@
     animation: flyIn 0.2s ease-out;
   }
 
+  .anim-preview-race {
+    animation: preview-race 2.5s infinite ease-in-out;
+    left: 4px;
+  }
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -379,5 +399,8 @@
     to { transform: translateY(0); opacity: 1; }
   }
 
-
+  @keyframes preview-race {
+    0%, 100% { left: 4px; }
+    45%, 55% { left: calc(100% - 28px); }
+  }
 </style>
